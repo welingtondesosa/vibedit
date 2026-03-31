@@ -6,7 +6,7 @@ export interface VibeditConfig {
   projectRoot: string;
 }
 
-export type ChangeType = 'css' | 'text' | 'prop' | 'reorder';
+export type ChangeType = 'css' | 'text' | 'prop' | 'reorder' | 'global-text';
 
 export interface CssChange {
   type: 'css';
@@ -46,11 +46,17 @@ export interface ReorderChange {
   toIndex: number;
 }
 
+export interface GlobalTextChange {
+  type: 'global-text';
+  oldText: string;
+  newText: string;
+}
+
 export interface UndoChange {
   type: 'undo';
 }
 
-export type Change = CssChange | TextChange | PropChange | ReorderChange | UndoChange;
+export type Change = CssChange | TextChange | PropChange | ReorderChange | GlobalTextChange | UndoChange;
 
 export interface ServerMessage {
   id: string;

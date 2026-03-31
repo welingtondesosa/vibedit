@@ -4,6 +4,7 @@ import type { ComponentProp } from '../utils/reactFiber';
 import { toKebabCase } from '../utils/cssParser';
 import { getRelativePath } from '../utils/domHelpers';
 import { parseColor, rgbToHex } from '../utils/cssParser';
+import { findPropSource, getComponentProps } from '../utils/reactFiber';
 
 // ── PRD design tokens (dark) ─────────────────────────────────────────────────
 const T = {
@@ -539,6 +540,8 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
       return;
     }
     setSavingText(true);
+
+    // 1. Try direct text replacement in the source file
     const result = await send({
       change: {
         type: 'text',
@@ -549,8 +552,48 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
         newText: localText,
       },
     });
+
+    if (result.success) {
+      setSavingText(false);
+      onToast('Texto actualizado', 'success');
+      return;
+    }
+
+    // 2. Text not found as a literal — it likely comes from a prop expression ({someVar}).
+    //    Walk the React fiber tree to find which prop holds this value and where it is passed.
+    const propSource = findPropSource(selected.element, elementText);
+    if (propSource) {
+      // Use TextChange to the parent call site — replaceTextContent finds the
+      // StringLiteral directly, no JSX element position lookup needed.
+      const propResult = await send({
+        change: {
+          type: 'text',
+          file: propSource.fileName,
+          line: propSource.lineNumber,
+          column: propSource.columnNumber,
+          oldText: elementText,
+          newText: localText,
+        },
+      });
+      setSavingText(false);
+      if (propResult.success) {
+        onToast(`"${propSource.propName}" actualizado`, 'success');
+        return;
+      }
+      // Call site found but text isn't a literal there either — likely i18n. Fall through to global search.
+    }
+
+    // 3. Global search: scan all source/translation files in the project for the string literal.
+    const globalResult = await send({
+      change: { type: 'global-text', oldText: elementText, newText: localText },
+    });
     setSavingText(false);
-    onToast(result.success ? 'Texto actualizado' : (result.error ?? 'Error al actualizar texto'), result.success ? 'success' : 'error');
+    onToast(
+      globalResult.success
+        ? 'Texto actualizado en archivo de traducciones'
+        : (globalResult.error ?? `"${elementText}" no encontrado en ningún archivo`),
+      globalResult.success ? 'success' : 'error'
+    );
   }, [localText, elementText, selected, send, onToast]);
   const [panelWidth, setPanelWidth] = useState(320);
   const isDraggingRef = useRef(false);
@@ -616,12 +659,40 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
   );
 
   const handlePropChange = useCallback(
-    async (name: string, value: string | number | boolean): Promise<void> => {
+    async (name: string, newValue: string | number | boolean): Promise<void> => {
       if (!selected.sourceFile || !selected.line) {
         onToast('Sin source info para editar props', 'error');
         return;
       }
 
+      // For string props: find where the prop is actually passed in the parent
+      // and send a TextChange there (more robust than PropChange + JSX position lookup).
+      if (typeof newValue === 'string') {
+        const currentProps = getComponentProps(selected.element);
+        const currentProp = currentProps.find((p) => p.name === name);
+        const oldValue = currentProp?.value;
+        if (typeof oldValue === 'string' && oldValue !== newValue) {
+          const propSource = findPropSource(selected.element, oldValue);
+          if (propSource && propSource.propName === name) {
+            setSavingProp(name);
+            const result = await send({
+              change: {
+                type: 'text',
+                file: propSource.fileName,
+                line: propSource.lineNumber,
+                column: propSource.columnNumber,
+                oldText: oldValue,
+                newText: newValue,
+              },
+            });
+            setSavingProp(null);
+            onToast(result.success ? `${name}: ${newValue}` : (result.error ?? 'Error al editar prop'), result.success ? 'success' : 'error');
+            return;
+          }
+        }
+      }
+
+      // Fallback for booleans, numbers, or when prop source not found
       setSavingProp(name);
       const result = await send({
         change: {
@@ -630,14 +701,14 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
           line: selected.line,
           column: selected.column,
           propName: name,
-          propValue: value,
+          propValue: newValue,
           componentName: selected.componentName,
         },
       });
       setSavingProp(null);
 
       if (result.success) {
-        onToast(`${name}: ${String(value)}`, 'success');
+        onToast(`${name}: ${String(newValue)}`, 'success');
       } else {
         onToast(result.error ?? 'Error al editar prop', 'error');
       }

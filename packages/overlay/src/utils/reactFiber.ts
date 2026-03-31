@@ -100,7 +100,54 @@ export function getSourceInfo(element: Element): SourceInfo | null {
   return null;
 }
 
-// ── Props Inspector ──────────────────────────────────────────────────────────
+// ── Prop source tracer ───────────────────────────────────────────────────────
+
+export interface PropSourceInfo {
+  fileName: string;
+  lineNumber: number;
+  columnNumber: number;
+  propName: string;
+}
+
+/**
+ * When a DOM element's text content comes from a React prop expression ({someVar}),
+ * this finds which component passes that prop and where in the source it does so.
+ *
+ * Example: <h1>{title}</h1> inside PageHeader — if title="Painel" is passed from
+ * a parent, this returns the parent's file/line and propName "title".
+ *
+ * Works by walking up the React fiber tree and matching memoizedProps values
+ * against the text. Uses _debugSource (injected by @babel/plugin-transform-react-jsx-source
+ * via @vitejs/plugin-react) to get the source location.
+ */
+export function findPropSource(element: Element, textValue: string): PropSourceInfo | null {
+  const fiber = getFiberFromElement(element);
+  if (!fiber) return null;
+
+  let current: ReactFiber | undefined = fiber;
+  while (current) {
+    if (typeof current.type === 'function' && current.memoizedProps) {
+      for (const [key, val] of Object.entries(current.memoizedProps)) {
+        if (key !== 'children' && typeof val === 'string' && val === textValue) {
+          // current._debugSource is exactly where <ComponentName propName="value">
+          // appears in the parent's source — that's what we need to edit.
+          if (current._debugSource) {
+            return {
+              fileName: current._debugSource.fileName,
+              lineNumber: current._debugSource.lineNumber,
+              columnNumber: current._debugSource.columnNumber,
+              propName: key,
+            };
+          }
+        }
+      }
+    }
+    current = current.return;
+  }
+  return null;
+}
+
+// ── Props Inspector ───────────────────────────────────────────────────────────
 
 export type PropEditableType = 'string' | 'number' | 'boolean' | 'readonly';
 

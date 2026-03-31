@@ -15,6 +15,7 @@ import type {
   TextChange,
   PropChange,
   ReorderChange,
+  GlobalTextChange,
   UndoEntry,
   VibeditConfig,
 } from './types.js';
@@ -32,6 +33,11 @@ export class FileWriter {
   async applyChange(change: Change): Promise<void> {
     if (change.type === 'undo') {
       await this.undo();
+      return;
+    }
+
+    if (change.type === 'global-text') {
+      await this.applyGlobalTextChange(change);
       return;
     }
 
@@ -197,6 +203,87 @@ export class FileWriter {
     }
 
     fs.writeFileSync(entry.file, entry.originalContent, 'utf-8');
+  }
+
+  private async applyGlobalTextChange(change: GlobalTextChange): Promise<void> {
+    const SKIP_DIRS = new Set([
+      'node_modules', 'dist', '.next', '.git', 'build', '.cache',
+      '.turbo', 'coverage', '.vibedit-backup', 'out', '.output',
+    ]);
+    const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|json)$/;
+
+    // Collect all candidate files under projectRoot
+    const candidates: string[] = [];
+    const walk = (dir: string): void => {
+      let entries: fs.Dirent[];
+      try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          if (!SKIP_DIRS.has(entry.name)) walk(path.join(dir, entry.name));
+        } else if (SOURCE_EXT.test(entry.name)) {
+          candidates.push(path.join(dir, entry.name));
+        }
+      }
+    };
+    walk(this.config.projectRoot);
+
+    // First pass: find which files actually contain the text as a string literal
+    const affected: string[] = [];
+    for (const filePath of candidates) {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      if (!content.includes(change.oldText)) continue;
+
+      if (filePath.endsWith('.json')) {
+        affected.push(filePath);
+      } else {
+        // Quick check via ts-morph that it's actually a StringLiteral
+        const { project, sourceFile } = getOrCreateProject(filePath);
+        const { SyntaxKind } = await import('ts-morph');
+        let found = false;
+        sourceFile.forEachDescendant((node) => {
+          if (found) return;
+          if (node.getKind() === SyntaxKind.StringLiteral) {
+            const lit = node as import('ts-morph').StringLiteral;
+            if (lit.getLiteralText() === change.oldText) found = true;
+          }
+        });
+        project.removeSourceFile(sourceFile);
+        if (found) affected.push(filePath);
+      }
+    }
+
+    if (affected.length === 0) {
+      throw new Error(`"${change.oldText}" not found as a string literal in any source file`);
+    }
+
+    // Backup all affected files, then replace
+    for (const filePath of affected) {
+      const originalContent = fs.readFileSync(filePath, 'utf-8');
+      this.backup.backup(filePath);
+      this.pushUndo(filePath, originalContent);
+
+      if (filePath.endsWith('.json')) {
+        // Simple string replacement for JSON (preserves formatting better than parse/stringify)
+        const updated = originalContent.replace(
+          new RegExp(`"${change.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'),
+          `"${change.newText}"`
+        );
+        fs.writeFileSync(filePath, updated, 'utf-8');
+      } else {
+        const { project, sourceFile } = getOrCreateProject(filePath);
+        const { SyntaxKind } = await import('ts-morph');
+        sourceFile.forEachDescendant((node) => {
+          if (node.getKind() === SyntaxKind.StringLiteral) {
+            const lit = node as import('ts-morph').StringLiteral;
+            if (lit.getLiteralText() === change.oldText) {
+              lit.setLiteralValue(change.newText);
+            }
+          }
+        });
+        await this.saveFile(filePath, sourceFile.getFullText());
+        project.removeSourceFile(sourceFile);
+      }
+    }
   }
 
   private resolveFilePath(filePath: string): string {

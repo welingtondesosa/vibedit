@@ -8,7 +8,7 @@ import type { SelectedElement } from './hooks/useElementPicker';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useUndo } from './hooks/useUndo';
 import { useDragReorder } from './hooks/useDragReorder';
-import { getSourceInfo } from './utils/reactFiber';
+import { getSourceInfo, findPropSource } from './utils/reactFiber';
 import { getRelativePath } from './utils/domHelpers';
 
 const GLOBAL_STYLES = `
@@ -82,8 +82,37 @@ export function App(): React.ReactElement {
       });
       if (result.success) {
         addToast('Text updated', 'success');
+        return;
+      }
+
+      // Fallback: text may come from a prop expression ({title}); find the call site
+      const propSource = findPropSource(element, oldText);
+      if (propSource) {
+        const propResult = await send({
+          change: {
+            type: 'text',
+            file: propSource.fileName,
+            line: propSource.lineNumber,
+            column: propSource.columnNumber,
+            oldText,
+            newText,
+          },
+        });
+        if (propResult.success) {
+          addToast('Text updated', 'success');
+          return;
+        }
+        // Fall through to global search
+      }
+
+      // 3. Global search across all source/translation files in the project
+      const globalResult = await send({
+        change: { type: 'global-text', oldText, newText },
+      });
+      if (globalResult.success) {
+        addToast('Text updated in translation file', 'success');
       } else {
-        addToast(result.error ?? 'Failed to update text', 'error');
+        addToast(globalResult.error ?? `"${oldText}" not found in any source file`, 'error');
       }
     },
     [send, addToast]

@@ -1,28 +1,27 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+import * as crypto from 'crypto';
 
 export class BackupManager {
   private backupDir: string;
 
-  constructor(projectRoot: string, backupDirName: string) {
-    this.backupDir = path.join(projectRoot, backupDirName);
+  constructor(projectRoot: string, _backupDirName: string) {
+    // Store backups in the system temp dir, namespaced by project.
+    // This keeps the user's repo completely clean — no extra files, no .gitignore changes.
+    const projectHash = crypto
+      .createHash('sha1')
+      .update(projectRoot)
+      .digest('hex')
+      .slice(0, 8);
+    const projectName = path.basename(projectRoot);
+    this.backupDir = path.join(os.tmpdir(), `vibedit-${projectName}-${projectHash}`);
     this.ensureBackupDir();
-    this.ensureGitignore(projectRoot, backupDirName);
   }
 
   private ensureBackupDir(): void {
     if (!fs.existsSync(this.backupDir)) {
       fs.mkdirSync(this.backupDir, { recursive: true });
-    }
-  }
-
-  private ensureGitignore(projectRoot: string, backupDirName: string): void {
-    const gitignorePath = path.join(projectRoot, '.gitignore');
-    if (!fs.existsSync(gitignorePath)) return;
-
-    const content = fs.readFileSync(gitignorePath, 'utf-8');
-    if (!content.includes(backupDirName)) {
-      fs.appendFileSync(gitignorePath, `\n# Vibedit backups\n${backupDirName}/\n`);
     }
   }
 
