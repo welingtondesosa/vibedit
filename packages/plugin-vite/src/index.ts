@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as net from 'net';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { VibeditServer } from '@vibedit/server';
@@ -47,11 +48,25 @@ export function vibeditBabelPlugin(): string {
   return found;
 }
 
-function startServer(options: VibeditOptions, root: string): void {
+/** Find a free TCP port starting from `startPort`. */
+function findFreePort(startPort: number): Promise<number> {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.listen(startPort, '127.0.0.1', () => {
+      const { port } = server.address() as net.AddressInfo;
+      server.close(() => resolve(port));
+    });
+    server.on('error', () => {
+      resolve(findFreePort(startPort + 1));
+    });
+  });
+}
+
+function startServer(options: VibeditOptions & { port: number }, root: string): void {
   if (serverInstance) return;
 
   const config: VibeditConfig = {
-    port: options.port ?? 4242,
+    port: options.port,
     undoLimit: options.undoLimit ?? 50,
     backupDir: '.vibedit-backup',
     prettier: options.prettier ?? true,
@@ -66,7 +81,9 @@ const OVERLAY_SCRIPT_TAG = (port: number): string =>
 <script src="/_vibedit/overlay.js"></script>`;
 
 export function vibedit(options: VibeditOptions = {}): Plugin[] {
-  const port = options.port ?? 4242;
+  const configuredPort = options.port ?? 4242;
+  let actualPort = configuredPort;
+  let projectRoot: string | null = null;
 
   const sourcePlugin: Plugin = {
     name: 'vibedit:source',
@@ -91,6 +108,8 @@ export function vibedit(options: VibeditOptions = {}): Plugin[] {
       try {
         const result = babel.transformSync(code, {
           filename: id,
+          // Pass the project root so state.cwd is correct in the babel plugin
+          cwd: projectRoot ?? process.cwd(),
           plugins: [babelPluginPath],
           ast: false,
           sourceMaps: true,
@@ -113,9 +132,11 @@ export function vibedit(options: VibeditOptions = {}): Plugin[] {
     name: 'vibedit',
     apply: 'serve',
 
-    configureServer(server) {
-      const root = server.config.root;
-      startServer(options, root);
+    async configureServer(server) {
+      projectRoot = server.config.root;
+      // Find a free port — avoids conflicts when multiple Vite projects run simultaneously
+      actualPort = await findFreePort(configuredPort);
+      startServer({ ...options, port: actualPort }, projectRoot);
 
       // Serve overlay from Vite dev server
       server.middlewares.use('/_vibedit/overlay.js', (_req, res, next) => {
@@ -133,7 +154,7 @@ export function vibedit(options: VibeditOptions = {}): Plugin[] {
       if (resolveOverlayBundle()) {
         return html.replace(
           '</body>',
-          `${OVERLAY_SCRIPT_TAG(port)}\n</body>`
+          `${OVERLAY_SCRIPT_TAG(actualPort)}\n</body>`
         );
       }
       return html;
