@@ -1,0 +1,26 @@
+{
+  "name": "@vibedit/server",
+  "version": "0.1.0",
+  "files": ["dist"],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "ws": "^8.17.0",
+    "ts-morph": "^22.0.0",
+    "prettier": "^3.2.0",
+    "chokidar": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.10",
+    "@types/node": "^20.12.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
+  }
+}

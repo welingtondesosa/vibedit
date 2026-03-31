@@ -1,0 +1,8 @@
+node_modules/
+.turbo/
+.next/
+.vibedit-backup/
+*.log
+.DS_Store
+coverage/
+apps/

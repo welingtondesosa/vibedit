@@ -1,0 +1,11 @@
+{
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console": "warn",
+    "prefer-const": "error"
+  },
+  "env": {
+    "node": true,
+    "es2022": true
+  }
+}
