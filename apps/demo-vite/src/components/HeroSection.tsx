@@ -19,7 +19,7 @@ export function HeroSection({ t }: HeroSectionProps) {
     <section
       style={{
         textAlign: 'center',
-        padding: '96px 24px 80px',
+        padding: 'clamp(60px, 10vw, 96px) 20px clamp(48px, 8vw, 80px)',
         maxWidth: '760px',
         margin: '0 auto',
       }}
@@ -79,18 +79,7 @@ export function HeroSection({ t }: HeroSectionProps) {
       </p>
 
       {/* Install command */}
-      <div
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '16px',
-          background: '#0d0d18',
-          border: '1px solid #1e1e35',
-          borderRadius: '12px',
-          padding: '12px 20px',
-          marginBottom: '40px',
-        }}
-      >
+      <div className="vb-install-cmd">
         <span style={{ color: '#64748b', fontSize: '13px', userSelect: 'none' }}>$</span>
         <code
           style={{

@@ -37,13 +37,7 @@ export function HowItWorks({ t }: HowItWorksProps) {
         {t.subtitle}
       </p>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '24px',
-        }}
-      >
+      <div className="vb-grid-3">
         {t.steps.map((step: { number: string; title: string; description: string }) => (
           <div
             key={step.number}

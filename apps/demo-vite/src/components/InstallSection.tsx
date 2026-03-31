@@ -67,7 +67,12 @@ export default defineConfig({
   },
 };
 
-function CodeBlock({ title, code, copyLabel, copiedLabel }: {
+function CodeBlock({
+  title,
+  code,
+  copyLabel,
+  copiedLabel,
+}: {
   title: string;
   code: string;
   copyLabel: string;
@@ -224,6 +229,59 @@ export function InstallSection({ t }: InstallSectionProps) {
         </code>{' '}
         {t.runNote2}
       </p>
+
+      {/* Uninstall section */}
+      <div
+        style={{
+          marginTop: '48px',
+          padding: '24px 28px',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: '14px',
+        }}
+      >
+        <h3
+          style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: '#475569',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span>🗑️</span>
+          {t.uninstallTitle}
+        </h3>
+        <p
+          style={{
+            fontSize: '13px',
+            color: '#334155',
+            lineHeight: 1.7,
+          }}
+        >
+          {t.uninstallDesc.split('`').map((part, i) =>
+            i % 2 === 1 ? (
+              <code
+                key={i}
+                style={{
+                  fontFamily: 'ui-monospace, Consolas, monospace',
+                  fontSize: '12px',
+                  color: '#6366f1',
+                  background: 'rgba(99,102,241,0.08)',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
+                }}
+              >
+                {part}
+              </code>
+            ) : (
+              <span key={i}>{part}</span>
+            )
+          )}
+        </p>
+      </div>
     </section>
   );
 }

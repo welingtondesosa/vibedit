@@ -26,3 +26,82 @@ a {
 button {
   font-family: inherit;
 }
+
+/* Responsive grids */
+.vb-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.vb-grid-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.vb-grid-opensource {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .vb-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .vb-grid-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .vb-grid-opensource {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vb-grid-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Nav responsive */
+.vb-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .vb-nav-links .vb-nav-text-link {
+    display: none;
+  }
+}
+
+/* Hero install command */
+.vb-install-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: #0d0d18;
+  border: 1px solid #1e1e35;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-bottom: 40px;
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .vb-install-cmd {
+    gap: 8px;
+    padding: 10px 14px;
+  }
+
+  .vb-install-cmd code {
+    font-size: 12px !important;
+  }
+}

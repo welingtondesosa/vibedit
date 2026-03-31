@@ -37,13 +37,7 @@ export function Features({ t }: FeaturesProps) {
         {t.subtitle}
       </p>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
-        }}
-      >
+      <div className="vb-grid-features">
         {t.items.map((f: { icon: string; title: string; description: string }) => (
           <article
             key={f.title}

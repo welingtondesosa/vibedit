@@ -15,7 +15,7 @@ export function Nav({ lang, onLangChange }: NavProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 32px',
+        padding: '0 20px',
         height: '56px',
         background: 'rgba(15,15,20,0.85)',
         backdropFilter: 'blur(12px)',
@@ -28,12 +28,13 @@ export function Nav({ lang, onLangChange }: NavProps) {
           fontWeight: 700,
           letterSpacing: '-0.02em',
           color: '#e2e8f0',
+          flexShrink: 0,
         }}
       >
         Vibedit
       </span>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="vb-nav-links">
         {/* Language selector */}
         <div
           style={{
@@ -43,7 +44,7 @@ export function Nav({ lang, onLangChange }: NavProps) {
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: '8px',
             padding: '3px',
-            marginRight: '8px',
+            marginRight: '4px',
           }}
         >
           {(Object.keys(LANG_LABELS) as Lang[]).map((l) => (
@@ -51,12 +52,12 @@ export function Nav({ lang, onLangChange }: NavProps) {
               key={l}
               onClick={() => onLangChange(l)}
               style={{
-                padding: '3px 10px',
+                padding: '3px 8px',
                 borderRadius: '5px',
                 border: 'none',
                 background: lang === l ? '#1e1e35' : 'transparent',
                 color: lang === l ? '#a5b4fc' : '#475569',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: lang === l ? 600 : 400,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
@@ -69,9 +70,10 @@ export function Nav({ lang, onLangChange }: NavProps) {
         </div>
 
         <a
-          href="https://www.npmjs.com/package/@vibedit/next"
+          href="https://www.npmjs.com/org/vibedit"
           target="_blank"
           rel="noopener noreferrer"
+          className="vb-nav-text-link"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -91,6 +93,7 @@ export function Nav({ lang, onLangChange }: NavProps) {
           href="https://github.com/welingtondesosa/vibedit"
           target="_blank"
           rel="noopener noreferrer"
+          className="vb-nav-text-link"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
