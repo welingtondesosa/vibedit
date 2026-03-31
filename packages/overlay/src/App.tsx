@@ -73,7 +73,7 @@ export function App(): React.ReactElement {
       const result = await send({
         change: {
           type: 'text',
-          file: getRelativePath(sourceInfo.fileName),
+          file: sourceInfo.fileName,
           line: sourceInfo.lineNumber,
           column: sourceInfo.columnNumber,
           oldText,

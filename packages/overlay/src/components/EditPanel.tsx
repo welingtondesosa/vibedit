@@ -542,7 +542,7 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
     const result = await send({
       change: {
         type: 'text',
-        file: getRelativePath(selected.sourceFile),
+        file: selected.sourceFile,
         line: selected.line,
         column: selected.column,
         oldText: elementText,
@@ -596,7 +596,7 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
       const result = await send({
         change: {
           type: 'css',
-          file: getRelativePath(selected.sourceFile),
+          file: selected.sourceFile,
           line: selected.line,
           column: selected.column,
           property: toKebabCase(property),
@@ -626,7 +626,7 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
       const result = await send({
         change: {
           type: 'prop',
-          file: getRelativePath(selected.sourceFile),
+          file: selected.sourceFile,
           line: selected.line,
           column: selected.column,
           propName: name,

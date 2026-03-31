@@ -199,8 +199,13 @@ export class FileWriter {
     fs.writeFileSync(entry.file, entry.originalContent, 'utf-8');
   }
 
-  private resolveFilePath(relativePath: string): string {
-    return path.resolve(this.config.projectRoot, relativePath);
+  private resolveFilePath(filePath: string): string {
+    // Absolute paths (injected by vibedit-babel-plugin) are used directly.
+    // Relative paths are resolved against projectRoot (legacy / fallback).
+    if (path.isAbsolute(filePath)) {
+      return filePath;
+    }
+    return path.resolve(this.config.projectRoot, filePath);
   }
 
   private validateFilePath(filePath: string): void {

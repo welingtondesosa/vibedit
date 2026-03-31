@@ -199,7 +199,7 @@ export function useDragReorder({ active, send, onToast }: UseDragReorderProps): 
       void sendRef.current({
         change: {
           type: 'reorder',
-          file: getRelativePath(sourceInfo.fileName),
+          file: sourceInfo.fileName,
           parentLine: sourceInfo.lineNumber,
           parentColumn: sourceInfo.columnNumber,
           fromIndex: finalFrom,

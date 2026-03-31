@@ -33,9 +33,11 @@ module.exports = function vibeditSourcePlugin({ types: t }) {
         const line = loc.start.line;
         const col = loc.start.column;
 
-        // Make path relative to project root (cwd when babel runs)
-        const cwd = state.cwd ?? process.cwd();
-        const relFile = path.relative(cwd, filename).replace(/\\/g, '/');
+        // Store the absolute path (normalized to forward slashes for cross-platform consistency).
+        // The server validates that it starts with projectRoot before writing — no traversal risk.
+        // Using absolute paths avoids any dependency on cwd/root alignment across project structures
+        // (monorepos, React Router v7 app/ dirs, custom Vite root, etc.)
+        const absFile = filename.replace(/\\/g, '/');
 
         // Check if attributes already exist to avoid duplicates on re-runs
         const existing = nodePath.node.attributes.map((a) =>
@@ -44,7 +46,7 @@ module.exports = function vibeditSourcePlugin({ types: t }) {
         if (existing.includes('data-vibedit-file')) return;
 
         nodePath.node.attributes.push(
-          t.jsxAttribute(t.jsxIdentifier('data-vibedit-file'), t.stringLiteral(relFile)),
+          t.jsxAttribute(t.jsxIdentifier('data-vibedit-file'), t.stringLiteral(absFile)),
           t.jsxAttribute(t.jsxIdentifier('data-vibedit-line'), t.stringLiteral(String(line))),
           t.jsxAttribute(t.jsxIdentifier('data-vibedit-col'), t.stringLiteral(String(col)))
         );
