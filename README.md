@@ -164,4 +164,4 @@ Key files to know:
 
 ## License
 
-MIT © Vibedit contributors
+MIT License — Copyright (c) 2026 Welington de Sosa - INFINIT.TOOLS
