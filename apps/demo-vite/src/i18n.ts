@@ -6,7 +6,51 @@ export const LANG_LABELS: Record<Lang, string> = {
   pt: 'Português',
 };
 
-export const T = {
+interface Step {
+  number: string;
+  title: string;
+  description: string;
+}
+
+interface FeatureItem {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface Translations {
+  hero: {
+    badge: string;
+    headline: string;
+    sub: string;
+    subHighlight: string;
+    copy: string;
+    copied: string;
+  };
+  howItWorks: {
+    title: string;
+    subtitle: string;
+    steps: Step[];
+  };
+  features: {
+    title: string;
+    subtitle: string;
+    items: FeatureItem[];
+  };
+  install: {
+    title: string;
+    subtitle: string;
+    runNote: string;
+    runNote2: string;
+    copy: string;
+    copied: string;
+  };
+  footer: {
+    reportIssue: string;
+  };
+}
+
+export const T: Record<Lang, Translations> = {
   en: {
     hero: {
       badge: 'Open Source · No AI · No Credits · MIT License',
@@ -57,9 +101,7 @@ export const T = {
       copy: 'copy',
       copied: '✓ copied',
     },
-    footer: {
-      reportIssue: 'Report an issue',
-    },
+    footer: { reportIssue: 'Report an issue' },
   },
 
   es: {
@@ -112,9 +154,7 @@ export const T = {
       copy: 'copiar',
       copied: '✓ copiado',
     },
-    footer: {
-      reportIssue: 'Reportar un problema',
-    },
+    footer: { reportIssue: 'Reportar un problema' },
   },
 
   pt: {
@@ -167,10 +207,6 @@ export const T = {
       copy: 'copiar',
       copied: '✓ copiado',
     },
-    footer: {
-      reportIssue: 'Reportar um problema',
-    },
+    footer: { reportIssue: 'Reportar um problema' },
   },
-} satisfies Record<Lang, typeof T['en']>;
-
-export type Translations = typeof T['en'];
+};

@@ -44,7 +44,7 @@ export function Features({ t }: FeaturesProps) {
           gap: '20px',
         }}
       >
-        {t.items.map((f) => (
+        {t.items.map((f: { icon: string; title: string; description: string }) => (
           <article
             key={f.title}
             style={{

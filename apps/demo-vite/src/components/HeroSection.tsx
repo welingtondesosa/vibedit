@@ -69,7 +69,7 @@ export function HeroSection({ t }: HeroSectionProps) {
           lineHeight: 1.65,
         }}
       >
-        {t.sub.split(t.subHighlight).map((part, i) =>
+        {t.sub.split(t.subHighlight).map((part: string, i: number) =>
           i === 0 ? (
             <span key={i}>{part}<span style={{ color: '#94a3b8' }}>{t.subHighlight}</span></span>
           ) : (

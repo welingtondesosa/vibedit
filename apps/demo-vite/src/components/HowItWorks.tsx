@@ -44,7 +44,7 @@ export function HowItWorks({ t }: HowItWorksProps) {
           gap: '24px',
         }}
       >
-        {t.steps.map((step) => (
+        {t.steps.map((step: { number: string; title: string; description: string }) => (
           <div
             key={step.number}
             style={{
