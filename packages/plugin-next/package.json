@@ -1,6 +1,6 @@
 {
   "name": "@vibedit/next",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Visual editing overlay for Next.js — edit styles live in your browser",
   "type": "module",
   "main": "./dist/index.js",
@@ -34,6 +34,12 @@
     "next": "^14.2.0",
     "typescript": "^5.4.0"
   },
-  "keywords": ["vibedit", "nextjs", "visual-editor", "css", "developer-tools"],
+  "keywords": [
+    "vibedit",
+    "nextjs",
+    "visual-editor",
+    "css",
+    "developer-tools"
+  ],
   "license": "MIT"
 }
