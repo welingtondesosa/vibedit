@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Background: same blue as active button (#1A56DB), rounded 12px -->
+  <!-- Background -->
   <rect width="48" height="48" rx="11" fill="#1A56DB"/>
 
-  <!-- Cursor arrow (white, scaled from toolbar icon) -->
+  <!-- Cursor arrow (bigger, more centered) -->
   <path
-    d="M8 6 L8 30 L14.5 23.5 L18 31.5 L21.5 30 L18 22 L26 22 Z"
+    d="M7 5 L7 28 L13 22 L16.5 31 L20.5 29.2 L17 20.5 L25 20.5 Z"
     fill="white"
     stroke="white"
-    stroke-width="0.8"
+    stroke-width="1"
     stroke-linejoin="round"
   />
 
-  <!-- Pencil body (light blue #93C5FD) -->
-  <path d="M27 25 L32 20 L37 25 L32 30 Z" fill="#93C5FD"/>
+  <!-- Pencil body -->
+  <path d="M26 27 L32 21 L38 27 L32 33 Z" fill="#93C5FD"/>
 
-  <!-- Pencil tip (lighter) -->
-  <path d="M32 20 L34.5 17.5 C35.2 16.8 36 16.8 36.7 17.5 L37.3 18.1 C38 18.8 38 19.6 37.3 20.3 L35 22.5 Z" fill="#BFDBFE"/>
+  <!-- Pencil top -->
+  <path d="M32 21 L34.8 18.2 C35.6 17.4 36.6 17.4 37.4 18.2 L38.1 18.9 C38.9 19.7 38.9 20.7 38.1 21.5 L35.5 24 Z" fill="#BFDBFE"/>
 
-  <!-- Pencil eraser nib -->
-  <path d="M27 25 L26.2 29 L30.2 28 Z" fill="#93C5FD"/>
+  <!-- Pencil tip nib -->
+  <path d="M26 27 L25 31.5 L29.5 30.5 Z" fill="#BFDBFE"/>
 
-  <!-- Green dot top-right (connection indicator) -->
-  <circle cx="39" cy="10" r="5" fill="#0f0f18"/>
-  <circle cx="39" cy="10" r="3.5" fill="#10B981"/>
+  <!-- Green dot — dark ring + green fill -->
+  <circle cx="40" cy="9" r="5.5" fill="#0a1628"/>
+  <circle cx="40" cy="9" r="4" fill="#10B981"/>
 </svg>
