@@ -15,19 +15,18 @@ npm install --save-dev @vibedit/vite
 
 ## Setup
 
-**`vite.config.ts`**
+**`vite.config.ts`** (dev only — keep your production config separate):
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { vibedit } from '@vibedit/vite';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    ...vibedit(),
-  ],
+  plugins: [react(), vibedit()],
 });
 ```
+
+> **Tip:** If you deploy with Cloudflare Pages or similar, create a separate `vite.config.dev.ts` with vibedit and run dev as `vite --config vite.config.dev.ts`. Keep your production `vite.config.ts` without the import so the build never tries to resolve `@vibedit/vite`.
 
 Run `npm run dev` and look for the Vibedit button in the bottom-right corner.
 

@@ -23,28 +23,30 @@ Works with **Next.js**, **Vite**, and any React-based framework.
 ### Next.js
 
 ```bash
-npm install --save-dev vibedit
+npm install --save-dev @vibedit/next
 ```
 
 **`next.config.mjs`**
 ```js
-import { withVibedit } from 'vibedit/next';
+import { withVibedit } from '@vibedit/next';
 
 export default withVibedit({
   // your existing Next.js config
 });
 ```
 
-**`app/layout.tsx`**
+**`app/layout.tsx`** — add the overlay in development only:
 ```tsx
-import { VibeditOverlay } from 'vibedit/next';
+import Script from 'next/script';
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
         {children}
-        <VibeditOverlay />
+        {process.env.NODE_ENV === 'development' && (
+          <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />
+        )}
       </body>
     </html>
   );
@@ -58,14 +60,14 @@ Run `npm run dev` — look for the Vibedit button in the bottom-right corner.
 ### Vite
 
 ```bash
-npm install --save-dev @vibedit/plugin-vite
+npm install --save-dev @vibedit/vite
 ```
 
 **`vite.config.ts`**
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { vibedit } from '@vibedit/plugin-vite';
+import { vibedit } from '@vibedit/vite';
 
 export default defineConfig({
   plugins: [
@@ -109,8 +111,8 @@ Run `npm run dev` — look for the Vibedit button in the bottom-right corner.
 
 | Package | Description |
 |---|---|
-| [`vibedit`](packages/plugin-next) | Next.js plugin + CLI (`npx vibedit init`) |
-| [`@vibedit/plugin-vite`](packages/plugin-vite) | Vite plugin |
+| [`@vibedit/next`](packages/plugin-next) | Next.js plugin |
+| [`@vibedit/vite`](packages/plugin-vite) | Vite plugin |
 | [`@vibedit/server`](packages/server) | WebSocket server + AST file writer |
 | [`@vibedit/overlay`](packages/overlay) | React overlay UI (IIFE bundle, Shadow DOM) |
 
