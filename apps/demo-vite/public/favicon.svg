@@ -1,21 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Background rounded square -->
-  <rect width="48" height="48" rx="11" fill="#0f0f18"/>
+  <!-- Background: same blue as active button (#1A56DB), rounded 12px -->
+  <rect width="48" height="48" rx="11" fill="#1A56DB"/>
 
-  <!-- Selected element box (top-left, representing a UI element being clicked) -->
-  <rect x="7" y="8" width="22" height="14" rx="3" fill="#1e1e35" stroke="#7c3aed" stroke-width="1.5"/>
+  <!-- Cursor arrow (white, scaled from toolbar icon) -->
+  <path
+    d="M8 6 L8 30 L14.5 23.5 L18 31.5 L21.5 30 L18 22 L26 22 Z"
+    fill="white"
+    stroke="white"
+    stroke-width="0.8"
+    stroke-linejoin="round"
+  />
 
-  <!-- Selection highlight dot on corner -->
-  <circle cx="7" cy="8" r="2" fill="#7c3aed"/>
-  <circle cx="29" cy="8" r="2" fill="#7c3aed"/>
-  <circle cx="7" cy="22" r="2" fill="#7c3aed"/>
-  <circle cx="29" cy="22" r="2" fill="#7c3aed"/>
+  <!-- Pencil body (light blue #93C5FD) -->
+  <path d="M27 25 L32 20 L37 25 L32 30 Z" fill="#93C5FD"/>
 
-  <!-- Cursor arrow (bottom-right, pointing at the element) -->
-  <path d="M24 28 L24 43 L28 39 L31 45 L33.5 44 L30.5 38 L36 38 Z"
-        fill="white" stroke="#0f0f18" stroke-width="1" stroke-linejoin="round"/>
+  <!-- Pencil tip (lighter) -->
+  <path d="M32 20 L34.5 17.5 C35.2 16.8 36 16.8 36.7 17.5 L37.3 18.1 C38 18.8 38 19.6 37.3 20.3 L35 22.5 Z" fill="#BFDBFE"/>
 
-  <!-- Small pencil/edit dot indicator -->
-  <circle cx="34" cy="27" r="3.5" fill="#a78bfa"/>
-  <path d="M33 26.2 L34.8 26.2 L35.5 27 L33.7 28.8 L33 28 Z" fill="white" opacity="0.8"/>
+  <!-- Pencil eraser nib -->
+  <path d="M27 25 L26.2 29 L30.2 28 Z" fill="#93C5FD"/>
+
+  <!-- Green dot top-right (connection indicator) -->
+  <circle cx="39" cy="10" r="5" fill="#0f0f18"/>
+  <circle cx="39" cy="10" r="3.5" fill="#10B981"/>
 </svg>
