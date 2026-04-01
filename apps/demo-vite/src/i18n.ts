@@ -66,112 +66,112 @@ export interface Translations {
 export const T: Record<Lang, Translations> = {
   en: {
     hero: {
-      badge: 'Open Source · No AI · No Credits · MIT License',
-      headline: 'Visual editing for React. No cloud required.',
-      sub: 'Click any element in your app, edit its styles and text in the panel, and watch your source files update instantly. No AI. No accounts. Everything stays local.',
+      badge: 'Open Source · Free · MIT License',
+      headline: 'Stop hunting for CSS. Edit your React UI visually.',
+      sub: 'You know the loop: open DevTools, guess the class name, hunt the file, edit, save, check. Vibedit replaces that loop — click any element, edit from a panel, and watch your source files update instantly.',
       subHighlight: 'source files update instantly',
       copy: 'copy',
       copied: '✓ copied',
     },
     howItWorks: {
       title: 'How it works',
-      subtitle: 'Three steps from install to your first live edit.',
+      subtitle: 'From install to your first live edit in under two minutes.',
       steps: [
         {
           number: '01',
           title: 'Install the plugin',
           description:
-            'Add Vibedit to your project with one command. It integrates as a dev-only plugin for Next.js or Vite — zero impact on your production build.',
+            'One command. It integrates as a dev-only plugin for Vite or Next.js — zero impact on your production build. Nothing changes in how your app runs.',
         },
         {
           number: '02',
           title: 'Click any element',
           description:
-            'Open your app in the browser and activate the editor with the floating button. Click any element — a panel slides in showing all its editable styles.',
+            'Activate the editor with the floating button. Click any element in your app — a panel slides in showing its styles, text, and props. No DevTools needed.',
         },
         {
           number: '03',
-          title: 'Changes write to source',
+          title: 'Your source files update',
           description:
-            'Adjust colors, spacing, typography, or text. Every change is written directly to your source files using AST parsing — no regex, no surprises.',
+            'Adjust colors, spacing, typography, or text. Every change is written directly to your source files using AST — not string replacement. The result is exactly what you would have typed.',
         },
       ],
     },
     features: {
-      title: 'Everything you need',
-      subtitle: 'Built for developers who want to iterate on UI faster.',
+      title: 'Built for the real workflow',
+      subtitle: 'Every feature exists to eliminate a specific friction point in UI iteration.',
       items: [
         {
           icon: '🎨',
-          title: 'Visual Style Editing',
+          title: 'No more DevTools guesswork',
           description:
-            'Edit colors, spacing, typography, borders, and shadows through a clean panel. See the result instantly in the browser.',
+            'Edit colors, spacing, typography, borders, and shadows from a clean panel. See the result in the browser and in your code — at the same time.',
         },
         {
           icon: '✏️',
-          title: 'Text & Content Editing',
+          title: 'Text changes in 3 seconds',
           description:
-            'Edit text directly from the panel — including content from i18n translation objects. No hunting through files.',
+            'Click any text, type the new content, press Enter. Works even when text comes from props or i18n translation files — no file hunting required.',
         },
         {
           icon: '🌳',
-          title: 'AST-powered Writes',
+          title: 'Code that stays yours',
           description:
-            'Changes are written back using ts-morph AST parsing — not string replacement or regex. Your code stays clean.',
-        },
-        {
-          icon: '🔒',
-          title: 'Shadow DOM Isolation',
-          description:
-            "The editor overlay lives in its own Shadow DOM. Its styles never interfere with your app's styles.",
+            'Changes are written using ts-morph AST parsing — not regex or string replacement. The output is clean, formatted code that looks like you wrote it.',
         },
         {
           icon: '↩️',
-          title: 'Full Undo History',
+          title: 'Instant undo on every change',
           description:
-            'Every change is tracked server-side. Undo any edit, one step at a time, without leaving the browser.',
+            'Changed the wrong thing? Every edit is tracked. Hit Ctrl+Z in the browser to undo, one step at a time, without touching the terminal.',
+        },
+        {
+          icon: '🔒',
+          title: 'Invisible to your app',
+          description:
+            "The editor lives in its own Shadow DOM. Its styles never leak into your app. Remove the plugin and your project is exactly as you left it.",
         },
         {
           icon: '🏠',
-          title: 'Zero Cloud, Zero AI',
+          title: 'No accounts. No cloud. No cost.',
           description:
-            'Everything runs on localhost. No accounts, no API keys, no telemetry, no recurring costs.',
+            'Everything runs on localhost via a local WebSocket server. No API keys, no telemetry, no subscriptions. Works offline, works on any project.',
         },
       ],
     },
     install: {
-      title: 'Get started in minutes',
-      subtitle: 'Pick your framework and follow the steps below.',
+      title: 'Get started in under 2 minutes',
+      subtitle: 'Pick your framework. One install, two config lines, done.',
       runNote: 'Run',
       runNote2: 'and look for the Vibedit button in the bottom-right corner of your app.',
       copy: 'copy',
       copied: '✓ copied',
       uninstallTitle: 'Want to remove it?',
       uninstallDesc:
-        'Vibedit leaves no traces. To uninstall completely: run `npm uninstall @vibedit/vite` (or `@vibedit/next`), then remove the two lines you added to your config file. That\'s it — no leftover files, no source code changes.',
+        'Vibedit leaves no traces. To uninstall: run `npm uninstall @vibedit/vite` (or `@vibedit/next`), then remove the two lines you added to your config. That\'s it — no leftover files, no source code changes, no lock-in.',
     },
     openSource: {
-      title: 'Open source. What does that mean for you?',
+      title: 'Open source. What does that actually mean?',
       subtitle:
-        'Three concepts that explain how Vibedit is distributed and why it costs nothing.',
+        'Three things worth understanding about how Vibedit is built and distributed.',
       cards: [
         {
           icon: '📦',
-          title: 'npm — where you install it from',
+          title: 'npm — where you install it',
           description:
-            'When you run `npm install @vibedit/vite`, npm downloads the package from a public registry. Think of it like an app store for developers — free, instant, versioned. No account needed to install.',
+            'When you run `npm install @vibedit/vite`, npm downloads the package from a public registry — like an app store for developers. Free, instant, versioned. No account needed.',
         },
         {
           icon: '👁️',
-          title: 'GitHub — where the code lives',
+          title: 'GitHub — the code is public',
           description:
-            'Every line of Vibedit\'s source code is public on GitHub. You can read it, inspect it, fork it, or report a bug. This transparency is what "open source" means: the kitchen is open.',
+            'Every line of Vibedit\'s source is on GitHub. You can read it, inspect what it does to your files, fork it, or report a bug. Open source means the kitchen is open — nothing hidden.',
         },
         {
           icon: '⚖️',
-          title: 'MIT License — free, forever',
+          title: 'MIT License — use it however you want',
           description:
-            'The MIT license lets you use Vibedit in any project — personal, commercial, or modified — at no cost, now and forever. The only rule: keep the copyright notice in the code.',
+            'The MIT license lets you use Vibedit in any project — personal, commercial, or modified. Free to use. If you find it valuable, a GitHub star or contribution goes a long way.',
         },
       ],
     },
@@ -180,112 +180,112 @@ export const T: Record<Lang, Translations> = {
 
   es: {
     hero: {
-      badge: 'Open Source · Sin IA · Sin Créditos · Licencia MIT',
-      headline: 'Edición visual para React. Sin cloud.',
-      sub: 'Hacé clic en cualquier elemento de tu app, editá sus estilos y textos en el panel, y mirá cómo tus archivos fuente se actualizan al instante. Sin IA. Sin cuentas. Todo local.',
+      badge: 'Open Source · Gratis · Licencia MIT',
+      headline: 'Dejá de buscar CSS. Editá tu UI de React visualmente.',
+      sub: 'Conocés el loop: DevTools, adivinar el nombre de la clase, buscar el archivo, editar, guardar, revisar. Vibedit reemplaza ese loop — hacé clic en cualquier elemento, editá desde el panel, y mirá cómo tus archivos fuente se actualizan al instante.',
       subHighlight: 'archivos fuente se actualizan al instante',
       copy: 'copiar',
       copied: '✓ copiado',
     },
     howItWorks: {
       title: 'Cómo funciona',
-      subtitle: 'Tres pasos desde la instalación hasta tu primera edición en vivo.',
+      subtitle: 'De la instalación a tu primera edición en vivo en menos de dos minutos.',
       steps: [
         {
           number: '01',
           title: 'Instalá el plugin',
           description:
-            'Agregá Vibedit a tu proyecto con un solo comando. Se integra como plugin solo en desarrollo — impacto cero en tu build de producción.',
+            'Un solo comando. Se integra como plugin solo en desarrollo para Vite o Next.js — impacto cero en tu build de producción. Nada cambia en cómo corre tu app.',
         },
         {
           number: '02',
           title: 'Hacé clic en cualquier elemento',
           description:
-            'Abrí tu app en el navegador y activá el editor con el botón flotante. Hacé clic en cualquier elemento — un panel se despliega con todos sus estilos editables.',
+            'Activá el editor con el botón flotante. Hacé clic en cualquier elemento — un panel se despliega con sus estilos, texto y props. Sin DevTools.',
         },
         {
           number: '03',
-          title: 'Los cambios se escriben al código',
+          title: 'Tus archivos fuente se actualizan',
           description:
-            'Ajustá colores, espaciado, tipografía o texto. Cada cambio se escribe directamente en tus archivos fuente usando AST — sin regex, sin sorpresas.',
+            'Ajustá colores, espaciado, tipografía o texto. Cada cambio se escribe en tus archivos fuente usando AST — no reemplazo de strings. El resultado es exactamente lo que hubieras escrito.',
         },
       ],
     },
     features: {
-      title: 'Todo lo que necesitás',
-      subtitle: 'Diseñado para developers que quieren iterar en la UI más rápido.',
+      title: 'Diseñado para el workflow real',
+      subtitle: 'Cada feature existe para eliminar una fricción específica en la iteración de UI.',
       items: [
         {
           icon: '🎨',
-          title: 'Edición visual de estilos',
+          title: 'Sin más suposiciones en DevTools',
           description:
-            'Editá colores, espaciado, tipografía, bordes y sombras desde un panel limpio. El resultado se ve al instante en el navegador.',
+            'Editá colores, espaciado, tipografía, bordes y sombras desde un panel limpio. El resultado se ve en el navegador y en tu código — al mismo tiempo.',
         },
         {
           icon: '✏️',
-          title: 'Edición de texto y contenido',
+          title: 'Cambios de texto en 3 segundos',
           description:
-            'Editá textos directamente desde el panel — incluyendo contenido de objetos de traducción i18n. Sin buscar en los archivos.',
+            'Hacé clic en cualquier texto, escribí el nuevo contenido, Enter. Funciona aunque el texto venga de props o archivos de traducción i18n — sin buscar archivos.',
         },
         {
           icon: '🌳',
-          title: 'Escritura con AST',
+          title: 'Código que sigue siendo tuyo',
           description:
-            'Los cambios se escriben usando ts-morph — no reemplazo de strings ni regex. Tu código queda limpio.',
-        },
-        {
-          icon: '🔒',
-          title: 'Aislamiento con Shadow DOM',
-          description:
-            'El overlay vive en su propio Shadow DOM. Sus estilos nunca interfieren con los estilos de tu app.',
+            'Los cambios se escriben con ts-morph — no regex ni reemplazo de strings. El resultado es código limpio y formateado, como si lo hubieras escrito vos.',
         },
         {
           icon: '↩️',
-          title: 'Historial de deshacer completo',
+          title: 'Undo instantáneo en cada cambio',
           description:
-            'Cada cambio queda registrado en el servidor. Deshacé cualquier edición, paso a paso, sin salir del navegador.',
+            '¿Cambiaste lo que no era? Cada edición queda registrada. Ctrl+Z en el navegador para deshacer, paso a paso, sin tocar la terminal.',
+        },
+        {
+          icon: '🔒',
+          title: 'Invisible para tu app',
+          description:
+            'El editor vive en su propio Shadow DOM. Sus estilos nunca se filtran a tu app. Quitá el plugin y tu proyecto queda exactamente como lo dejaste.',
         },
         {
           icon: '🏠',
-          title: 'Sin Cloud, Sin IA',
+          title: 'Sin cuentas. Sin cloud. Sin costo.',
           description:
-            'Todo corre en localhost. Sin cuentas, sin API keys, sin telemetría, sin costos recurrentes.',
+            'Todo corre en localhost via WebSocket local. Sin API keys, sin telemetría, sin suscripciones. Funciona offline, funciona en cualquier proyecto.',
         },
       ],
     },
     install: {
-      title: 'Empezá en minutos',
-      subtitle: 'Elegí tu framework y seguí los pasos.',
+      title: 'Empezá en menos de 2 minutos',
+      subtitle: 'Elegí tu framework. Una instalación, dos líneas de config, listo.',
       runNote: 'Ejecutá',
       runNote2: 'y buscá el botón de Vibedit en la esquina inferior derecha de tu app.',
       copy: 'copiar',
       copied: '✓ copiado',
       uninstallTitle: '¿Querés quitarlo?',
       uninstallDesc:
-        'Vibedit no deja rastros. Para desinstalar: ejecutá `npm uninstall @vibedit/vite` (o `@vibedit/next`), y eliminá las dos líneas que agregaste en tu config. Listo — sin archivos residuales, sin cambios en el código fuente.',
+        'Vibedit no deja rastros. Para desinstalar: ejecutá `npm uninstall @vibedit/vite` (o `@vibedit/next`), y eliminá las dos líneas que agregaste en tu config. Listo — sin archivos residuales, sin cambios en el código fuente, sin lock-in.',
     },
     openSource: {
-      title: '¿Open source? ¿GitHub? ¿npm? ¿Qué significa todo eso?',
+      title: '¿Open source? ¿Qué significa realmente?',
       subtitle:
-        'Tres conceptos que explican cómo se distribuye Vibedit y por qué no cuesta nada.',
+        'Tres cosas que vale la pena entender sobre cómo se construye y distribuye Vibedit.',
       cards: [
         {
           icon: '📦',
           title: 'npm — donde lo instalás',
           description:
-            'Cuando ejecutás `npm install @vibedit/vite`, npm descarga el paquete desde un registro público. Pensalo como una tienda de apps para developers — gratis, instantáneo, con versiones. Sin cuenta para instalar.',
+            'Cuando ejecutás `npm install @vibedit/vite`, npm descarga el paquete desde un registro público — como una tienda de apps para developers. Gratis, instantáneo, con versiones. Sin cuenta.',
         },
         {
           icon: '👁️',
-          title: 'GitHub — donde vive el código',
+          title: 'GitHub — el código es público',
           description:
-            'Todo el código fuente de Vibedit es público en GitHub. Podés leerlo, inspeccionarlo, copiarlo o reportar un bug. Eso es lo que significa "open source": la cocina está abierta.',
+            'Todo el código de Vibedit está en GitHub. Podés leerlo, inspeccionar qué hace con tus archivos, copiarlo o reportar un bug. Open source significa la cocina está abierta — nada escondido.',
         },
         {
           icon: '⚖️',
-          title: 'Licencia MIT — gratis, para siempre',
+          title: 'Licencia MIT — usalo como quieras',
           description:
-            'La licencia MIT te permite usar Vibedit en cualquier proyecto — personal, comercial o modificado — sin costo, ahora y siempre. La única regla: mantener el aviso de copyright en el código.',
+            'La licencia MIT te permite usar Vibedit en cualquier proyecto — personal, comercial o modificado. Gratis para usar. Si te resulta útil, una estrella en GitHub o una contribución hace la diferencia.',
         },
       ],
     },
@@ -294,112 +294,112 @@ export const T: Record<Lang, Translations> = {
 
   pt: {
     hero: {
-      badge: 'Open Source · Sem IA · Sem Créditos · Licença MIT',
-      headline: 'Edição visual para React. Sem cloud.',
-      sub: 'Clique em qualquer elemento do seu app, edite seus estilos e textos no painel e veja seus arquivos fonte atualizarem na hora. Sem IA. Sem contas. Tudo local.',
+      badge: 'Open Source · Gratuito · Licença MIT',
+      headline: 'Pare de procurar CSS. Edite sua UI React visualmente.',
+      sub: 'Você conhece o loop: DevTools, adivinhar o nome da classe, procurar o arquivo, editar, salvar, verificar. O Vibedit substitui esse loop — clique em qualquer elemento, edite pelo painel e veja seus arquivos fonte atualizarem na hora.',
       subHighlight: 'arquivos fonte atualizarem na hora',
       copy: 'copiar',
       copied: '✓ copiado',
     },
     howItWorks: {
       title: 'Como funciona',
-      subtitle: 'Três passos da instalação até sua primeira edição ao vivo.',
+      subtitle: 'Da instalação à sua primeira edição ao vivo em menos de dois minutos.',
       steps: [
         {
           number: '01',
           title: 'Instale o plugin',
           description:
-            'Adicione o Vibedit ao seu projeto com um comando. Ele se integra como plugin apenas em desenvolvimento — impacto zero no seu build de produção.',
+            'Um comando só. Se integra como plugin apenas em desenvolvimento para Vite ou Next.js — impacto zero no seu build de produção. Nada muda em como seu app roda.',
         },
         {
           number: '02',
           title: 'Clique em qualquer elemento',
           description:
-            'Abra seu app no navegador e ative o editor com o botão flutuante. Clique em qualquer elemento — um painel desliza mostrando todos os seus estilos editáveis.',
+            'Ative o editor com o botão flutuante. Clique em qualquer elemento — um painel desliza mostrando seus estilos, texto e props. Sem DevTools.',
         },
         {
           number: '03',
-          title: 'Mudanças vão para o código',
+          title: 'Seus arquivos fonte atualizam',
           description:
-            'Ajuste cores, espaçamento, tipografia ou texto. Cada mudança é escrita diretamente nos seus arquivos fonte usando AST — sem regex, sem surpresas.',
+            'Ajuste cores, espaçamento, tipografia ou texto. Cada mudança é escrita diretamente nos seus arquivos fonte usando AST — sem substituição de strings. O resultado é exatamente o que você teria digitado.',
         },
       ],
     },
     features: {
-      title: 'Tudo que você precisa',
-      subtitle: 'Feito para developers que querem iterar na UI mais rápido.',
+      title: 'Feito para o fluxo de trabalho real',
+      subtitle: 'Cada feature existe para eliminar um ponto de atrito específico na iteração de UI.',
       items: [
         {
           icon: '🎨',
-          title: 'Edição visual de estilos',
+          title: 'Sem mais adivinhações no DevTools',
           description:
-            'Edite cores, espaçamento, tipografia, bordas e sombras num painel limpo. Veja o resultado na hora no navegador.',
+            'Edite cores, espaçamento, tipografia, bordas e sombras num painel limpo. Veja o resultado no navegador e no seu código — ao mesmo tempo.',
         },
         {
           icon: '✏️',
-          title: 'Edição de texto e conteúdo',
+          title: 'Mudanças de texto em 3 segundos',
           description:
-            'Edite textos diretamente do painel — incluindo conteúdo de objetos de tradução i18n. Sem procurar nos arquivos.',
+            'Clique em qualquer texto, digite o novo conteúdo, Enter. Funciona mesmo quando o texto vem de props ou arquivos de tradução i18n — sem procurar arquivos.',
         },
         {
           icon: '🌳',
-          title: 'Escritas com AST',
+          title: 'Código que continua sendo seu',
           description:
-            'As mudanças são escritas usando ts-morph — sem substituição de strings ou regex. Seu código fica limpo.',
-        },
-        {
-          icon: '🔒',
-          title: 'Isolamento com Shadow DOM',
-          description:
-            'O overlay vive em seu próprio Shadow DOM. Seus estilos nunca interferem com os estilos do seu app.',
+            'As mudanças são escritas com ts-morph — sem regex ou substituição de strings. O resultado é código limpo e formatado, como se você tivesse digitado.',
         },
         {
           icon: '↩️',
-          title: 'Histórico completo de desfazer',
+          title: 'Desfazer instantâneo em cada mudança',
           description:
-            'Cada mudança é registrada no servidor. Desfaça qualquer edição, passo a passo, sem sair do navegador.',
+            'Mudou a coisa errada? Cada edição é rastreada. Ctrl+Z no navegador para desfazer, passo a passo, sem tocar no terminal.',
+        },
+        {
+          icon: '🔒',
+          title: 'Invisível para seu app',
+          description:
+            'O editor vive em seu próprio Shadow DOM. Seus estilos nunca vazam para o seu app. Remova o plugin e seu projeto fica exatamente como você deixou.',
         },
         {
           icon: '🏠',
-          title: 'Sem Cloud, Sem IA',
+          title: 'Sem contas. Sem cloud. Sem custo.',
           description:
-            'Tudo roda em localhost. Sem contas, sem API keys, sem telemetria, sem custos recorrentes.',
+            'Tudo roda em localhost via WebSocket local. Sem API keys, sem telemetria, sem assinaturas. Funciona offline, funciona em qualquer projeto.',
         },
       ],
     },
     install: {
-      title: 'Comece em minutos',
-      subtitle: 'Escolha seu framework e siga os passos abaixo.',
+      title: 'Comece em menos de 2 minutos',
+      subtitle: 'Escolha seu framework. Uma instalação, duas linhas de config, pronto.',
       runNote: 'Execute',
       runNote2: 'e procure o botão do Vibedit no canto inferior direito do seu app.',
       copy: 'copiar',
       copied: '✓ copiado',
       uninstallTitle: 'Quer remover?',
       uninstallDesc:
-        'O Vibedit não deixa rastros. Para desinstalar: execute `npm uninstall @vibedit/vite` (ou `@vibedit/next`), e remova as duas linhas que você adicionou no seu arquivo de config. Pronto — sem arquivos residuais, sem alterações no código fonte.',
+        'O Vibedit não deixa rastros. Para desinstalar: execute `npm uninstall @vibedit/vite` (ou `@vibedit/next`), e remova as duas linhas que você adicionou no seu arquivo de config. Pronto — sem arquivos residuais, sem alterações no código fonte, sem lock-in.',
     },
     openSource: {
-      title: 'Open source? GitHub? npm? O que significa tudo isso?',
+      title: 'Open source? O que isso significa de verdade?',
       subtitle:
-        'Três conceitos que explicam como o Vibedit é distribuído e por que não custa nada.',
+        'Três coisas que vale entender sobre como o Vibedit é construído e distribuído.',
       cards: [
         {
           icon: '📦',
           title: 'npm — onde você instala',
           description:
-            'Quando você executa `npm install @vibedit/vite`, o npm baixa o pacote de um registro público. Pense como uma loja de apps para desenvolvedores — gratuito, instantâneo, versionado. Sem conta para instalar.',
+            'Quando você executa `npm install @vibedit/vite`, o npm baixa o pacote de um registro público — como uma loja de apps para desenvolvedores. Gratuito, instantâneo, versionado. Sem conta.',
         },
         {
           icon: '👁️',
-          title: 'GitHub — onde o código vive',
+          title: 'GitHub — o código é público',
           description:
-            'Todo o código fonte do Vibedit é público no GitHub. Você pode ler, inspecionar, bifurcar ou reportar um bug. Isso é o que "open source" significa: a cozinha está aberta.',
+            'Todo o código do Vibedit está no GitHub. Você pode ler, inspecionar o que ele faz com seus arquivos, bifurcar ou reportar um bug. Open source significa a cozinha está aberta — nada escondido.',
         },
         {
           icon: '⚖️',
-          title: 'Licença MIT — gratuito, para sempre',
+          title: 'Licença MIT — use como quiser',
           description:
-            'A licença MIT permite usar o Vibedit em qualquer projeto — pessoal, comercial ou modificado — sem custo, agora e sempre. A única regra: manter o aviso de copyright no código.',
+            'A licença MIT permite usar o Vibedit em qualquer projeto — pessoal, comercial ou modificado. Gratuito para usar. Se achar útil, uma estrela no GitHub ou uma contribuição faz diferença.',
         },
       ],
     },

@@ -392,10 +392,11 @@ interface PropsSectionProps {
 function PropsSection({ props, onChangeProp, saving }: PropsSectionProps): React.ReactElement | null {
   const [open, setOpen] = useState(true);
 
-  const editable = props.filter((p) => p.editableType !== 'readonly');
+  // String props are already editable via the CONTENT section — only show boolean/number here.
+  const editable = props.filter((p) => p.editableType === 'boolean' || p.editableType === 'number');
   const readonly = props.filter((p) => p.editableType === 'readonly');
 
-  if (props.length === 0) return null;
+  if (editable.length === 0 && readonly.length === 0) return null;
 
   return (
     <div style={{ borderBottom: `1px solid ${T.border}` }}>
