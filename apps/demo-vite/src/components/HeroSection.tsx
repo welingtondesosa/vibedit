@@ -55,6 +55,7 @@ export function HeroSection({ t }: HeroSectionProps) {
           background: 'linear-gradient(135deg, #e2e8f0 0%, #a5b4fc 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
+          paddingBottom: '10px',
         }}
       >
         {t.headline}
@@ -71,7 +72,10 @@ export function HeroSection({ t }: HeroSectionProps) {
       >
         {t.sub.split(t.subHighlight).map((part: string, i: number) =>
           i === 0 ? (
-            <span key={i}>{part}<span style={{ color: '#94a3b8' }}>{t.subHighlight}</span></span>
+            <span key={i}>
+              {part}
+              <span style={{ color: '#94a3b8' }}>{t.subHighlight}</span>
+            </span>
           ) : (
             <span key={i}>{part}</span>
           )
