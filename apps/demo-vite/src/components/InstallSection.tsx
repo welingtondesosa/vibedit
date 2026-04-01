@@ -12,33 +12,12 @@ const CODE: Record<Framework, { label: string; blocks: { title: string; code: st
     label: 'Next.js',
     blocks: [
       {
-        title: '1. Install',
-        code: `npm install --save-dev @vibedit/next`,
+        title: 'Run this in your project root',
+        code: `npx @vibedit/next init`,
       },
       {
-        title: '2. Wrap your Next.js config',
-        code: `// next.config.mjs
-import { withVibedit } from '@vibedit/next';
-
-export default withVibedit({
-  // your existing Next.js config
-});`,
-      },
-      {
-        title: '3. Add the overlay to your layout',
-        code: `// app/layout.tsx
-import { VibeditOverlay } from '@vibedit/next';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        {children}
-        <VibeditOverlay />
-      </body>
-    </html>
-  );
-}`,
+        title: 'That\'s it — restart your dev server',
+        code: `npm run dev`,
       },
     ],
   },
@@ -46,22 +25,12 @@ export default function RootLayout({ children }) {
     label: 'Vite',
     blocks: [
       {
-        title: '1. Install',
-        code: `npm install --save-dev @vibedit/vite`,
+        title: 'Run this in your project root',
+        code: `npx @vibedit/vite init`,
       },
       {
-        title: '2. Add the plugin to vite.config.ts',
-        code: `// vite.config.ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { vibedit } from '@vibedit/vite';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    ...vibedit(),
-  ],
-});`,
+        title: 'That\'s it — start your dev server',
+        code: `npm run dev`,
       },
     ],
   },

@@ -141,7 +141,7 @@ export const T: Record<Lang, Translations> = {
     },
     install: {
       title: 'Get started in under 2 minutes',
-      subtitle: 'Pick your framework. One install, two config lines, done.',
+      subtitle: 'One command. No manual config. Works with Next.js and Vite.',
       runNote: 'Run',
       runNote2: 'and look for the Vibedit button in the bottom-right corner of your app.',
       copy: 'copy',
@@ -255,7 +255,7 @@ export const T: Record<Lang, Translations> = {
     },
     install: {
       title: 'Empezá en menos de 2 minutos',
-      subtitle: 'Elegí tu framework. Una instalación, dos líneas de config, listo.',
+      subtitle: 'Un comando. Sin config manual. Funciona con Next.js y Vite.',
       runNote: 'Ejecutá',
       runNote2: 'y buscá el botón de Vibedit en la esquina inferior derecha de tu app.',
       copy: 'copiar',
@@ -369,7 +369,7 @@ export const T: Record<Lang, Translations> = {
     },
     install: {
       title: 'Comece em menos de 2 minutos',
-      subtitle: 'Escolha seu framework. Uma instalação, duas linhas de config, pronto.',
+      subtitle: 'Um comando. Sem config manual. Funciona com Next.js e Vite.',
       runNote: 'Execute',
       runNote2: 'e procure o botão do Vibedit no canto inferior direito do seu app.',
       copy: 'copiar',

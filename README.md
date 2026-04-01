@@ -36,25 +36,15 @@ This installs the package, patches your `next.config.mjs`, and injects the overl
 
 ### Vite
 
+One command sets everything up automatically:
+
 ```bash
-npm install --save-dev @vibedit/vite
+npx @vibedit/vite init
 ```
 
-**`vite.config.ts`**
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { vibedit } from '@vibedit/vite';
+This installs the package and adds the `vibedit()` plugin to your `vite.config.ts`. Then run `npm run dev` and look for the Vibedit button in the bottom-right corner.
 
-export default defineConfig({
-  plugins: [
-    react(),
-    ...vibedit(),
-  ],
-});
-```
-
-Run `npm run dev` — look for the Vibedit button in the bottom-right corner.
+**Manual setup:** see the [@vibedit/vite README](packages/plugin-vite/README.md).
 
 ---
 
