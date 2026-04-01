@@ -2,8 +2,11 @@ import type { NextConfig } from 'next';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import { VibeditServer } from '@vibedit/server';
 import type { VibeditConfig } from '@vibedit/server';
+
+const require = createRequire(import.meta.url);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -72,19 +75,24 @@ export function withVibedit(
         // Inject babel plugin for source-location tracking without requiring babel.config.js
         const babelPlugin = resolveBabelPlugin();
         if (babelPlugin) {
-          config.module.rules.unshift({
-            test: /\.[jt]sx$/,
-            exclude: /node_modules/,
-            enforce: 'pre' as const,
-            use: [{
-              loader: require.resolve('babel-loader'),
-              options: {
-                plugins: [babelPlugin],
-                babelrc: false,
-                configFile: false,
-              },
-            }],
-          });
+          try {
+            const babelLoaderPath = require.resolve('babel-loader');
+            config.module.rules.unshift({
+              test: /\.[jt]sx$/,
+              exclude: /node_modules/,
+              enforce: 'pre' as const,
+              use: [{
+                loader: babelLoaderPath,
+                options: {
+                  plugins: [babelPlugin],
+                  babelrc: false,
+                  configFile: false,
+                },
+              }],
+            });
+          } catch {
+            console.warn('[Vibedit] babel-loader not found — source tracking disabled. Click-to-edit may not work correctly.');
+          }
         }
       }
 
