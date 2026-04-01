@@ -50,13 +50,13 @@ function patchNextConfig() {
       "",
       "export default withVibedit(nextConfig);",
     ].join('\n'));
-    log('next.config.mjs criado com withVibedit');
+    log('next.config.mjs created with withVibedit');
     return;
   }
 
   let content = readFileSync(join(cwd, file), 'utf8');
   if (content.includes('withVibedit')) {
-    warn(`${file} já tem withVibedit — pulando`);
+    warn(`${file} already has withVibedit — skipping`);
     return;
   }
 
@@ -85,7 +85,7 @@ function patchNextConfig() {
   );
 
   writeFileSync(join(cwd, file), content);
-  log(`${file} atualizado com withVibedit`);
+  log(`${file} updated with withVibedit`);
 }
 
 function patchLayout() {
@@ -96,7 +96,7 @@ function patchLayout() {
   const file = candidates.find(f => existsSync(join(cwd, f)));
 
   if (!file) {
-    warn('Arquivo app/layout.tsx não encontrado — adicione manualmente o Script do Vibedit:');
+    warn('app/layout.tsx not found — add the Vibedit script manually:');
     printLayoutSnippet();
     return;
   }
@@ -104,7 +104,7 @@ function patchLayout() {
   let content = readFileSync(join(cwd, file), 'utf8');
 
   if (content.includes('_vibedit')) {
-    warn(`${file} já tem o script do Vibedit — pulando`);
+    warn(`${file} already has the Vibedit script — skipping`);
     return;
   }
 
@@ -133,12 +133,12 @@ function patchLayout() {
 
   content = content.replace('</body>', `${scriptSnippet}\n      </body>`);
   writeFileSync(join(cwd, file), content);
-  log(`${file} atualizado com o script do Vibedit`);
+  log(`${file} updated with Vibedit script`);
 }
 
 function printLayoutSnippet() {
   console.log(`
-  Adicione isto dentro do <body> no seu layout.tsx:
+  Add this inside <body> in your layout.tsx:
 
   import Script from 'next/script';
 
@@ -153,61 +153,61 @@ function printLayoutSnippet() {
 const command = process.argv[2];
 
 if (command === 'init') {
-  title('Vibedit — configurando seu projeto Next.js...\n');
+  title('Vibedit — setting up your Next.js project...\n');
 
   // 1. Detect framework
   let framework;
   try {
     framework = detectFramework();
   } catch {
-    error('package.json não encontrado. Execute o comando na raiz do seu projeto.');
+    error('No package.json found. Run this command from the root of your project.');
     process.exit(1);
   }
 
   if (framework !== 'next') {
-    error('Next.js não detectado. Para projetos Vite, use @vibedit/vite.');
+    error('Next.js not detected. For Vite projects, use @vibedit/vite instead.');
     process.exit(1);
   }
 
-  log('Framework detectado: Next.js');
+  log('Framework detected: Next.js');
 
   // 2. Install package (skip if already in package.json)
   if (isAlreadyInstalled()) {
-    log('@vibedit/next já está instalado');
+    log('@vibedit/next is already installed');
   } else {
-    title('Instalando @vibedit/next...');
+    title('Installing @vibedit/next...');
     try {
       execSync('npm install --save-dev @vibedit/next', { stdio: 'inherit', cwd });
     } catch {
-      error('Erro ao instalar o pacote. Verifique sua conexão com a internet.');
+      error('Failed to install package. Check your internet connection and try again.');
       process.exit(1);
     }
   }
 
   // 3. Patch config files
-  title('Configurando arquivos...');
+  title('Updating project files...');
   patchNextConfig();
   patchLayout();
 
   // 4. Done
   console.log(`
-\x1b[1m\x1b[32m✓ Vibedit instalado com sucesso!\x1b[0m
+\x1b[1m\x1b[32m✓ Vibedit is ready!\x1b[0m
 
-Para começar:
-  1. Reinicie o servidor: \x1b[1mnpm run dev\x1b[0m
-  2. Abra o app no navegador
-  3. Procure o botão azul no \x1b[1mcanto inferior direito\x1b[0m
+Next steps:
+  1. Restart your dev server: \x1b[1mnpm run dev\x1b[0m
+  2. Open your app in the browser
+  3. Look for the blue Vibedit button in the \x1b[1mbottom-right corner\x1b[0m
 
-Dúvidas ou problemas → https://github.com/welingtondesosa/vibedit/issues
+Questions or issues → https://github.com/welingtondesosa/vibedit/issues
 `);
 
 } else {
   console.log(`
 \x1b[1mVibedit CLI\x1b[0m
 
-Uso:
-  \x1b[1mnpx @vibedit/next init\x1b[0m    Configura o Vibedit no projeto atual
+Usage:
+  \x1b[1mnpx @vibedit/next init\x1b[0m    Set up Vibedit in the current project
 
-Documentação: https://github.com/welingtondesosa/vibedit
+Docs: https://github.com/welingtondesosa/vibedit
 `);
 }
