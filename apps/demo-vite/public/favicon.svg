@@ -4,7 +4,7 @@
 
   <!-- Cursor arrow (bigger, more centered) -->
   <path
-    d="M7 5 L7 28 L13 22 L16.5 31 L20.5 29.2 L17 20.5 L25 20.5 Z"
+    d="M7 10 L7 33 L13 27 L16.5 36 L20.5 34.2 L17 25.5 L25 25.5 Z"
     fill="white"
     stroke="white"
     stroke-width="1"
