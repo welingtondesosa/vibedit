@@ -9,34 +9,51 @@
 
 ## Install
 
+The fastest way — one command sets everything up automatically:
+
+```bash
+npx @vibedit/next init
+```
+
+This will:
+- Install `@vibedit/next` as a devDependency
+- Patch your `next.config.mjs` with `withVibedit`
+- Inject the overlay `<Script>` into your `app/layout.tsx`
+
+Then restart your dev server and look for the Vibedit button in the bottom-right corner.
+
+---
+
+## Manual setup
+
+If you prefer to configure manually:
+
+**1. Install**
 ```bash
 npm install --save-dev @vibedit/next
 ```
 
-## Setup
-
-**`next.config.mjs`**
+**2. `next.config.mjs`**
 ```js
 import { withVibedit } from '@vibedit/next';
 
-export default withVibedit({
-  // your existing Next.js config
-});
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+
+export default withVibedit(nextConfig);
 ```
 
-**`app/layout.tsx`** — add the overlay in development only:
+**3. `app/layout.tsx`**
 ```tsx
 import Script from 'next/script';
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html>
-      <body>
+    <html lang="en">
+      <body suppressHydrationWarning>
         {children}
         {process.env.NODE_ENV === 'development' && (
-          <>
-            <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />
-          </>
+          <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />
         )}
       </body>
     </html>
@@ -44,7 +61,9 @@ export default function RootLayout({ children }) {
 }
 ```
 
-Run `npm run dev` and look for the Vibedit button in the bottom-right corner.
+**4.** Run `npm run dev` and look for the Vibedit button in the bottom-right corner.
+
+---
 
 ## Options
 
@@ -56,23 +75,20 @@ withVibedit(nextConfig, {
 })
 ```
 
-## How it works
-
-1. A Babel plugin injects `data-vibedit-file` and `data-vibedit-line` on every HTML element at compile time
-2. A floating button activates the editor overlay (Shadow DOM isolated)
-3. Click any element → panel shows editable CSS properties
-4. Changes are written to source files using [ts-morph](https://ts-morph.com/) AST parsing — not regex
-
 ## What you can edit
 
 - Inline CSS properties (color, spacing, typography, borders, shadows…)
 - Text content — including i18n translation objects
-- Full undo history
+- Full undo history (Ctrl+Z in browser)
+
+## Compatibility
+
+Works with Next.js 13+ (App Router and Pages Router). Tested with Next.js 15.
 
 ## Links
 
 - [GitHub](https://github.com/welingtondesosa/vibedit)
-- [Landing page & docs](https://vibedit.pages.dev)
+- [Landing page](https://vibedit.pages.dev)
 - [Report an issue](https://github.com/welingtondesosa/vibedit/issues)
 
 ## License

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * vibedit CLI — init command
- * Usage: npx vibedit init
+ * Usage: npx @vibedit/next init
  */
 
 import { execSync } from 'child_process';
@@ -25,6 +25,16 @@ function detectFramework() {
   return null;
 }
 
+function isAlreadyInstalled() {
+  try {
+    const pkg = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8'));
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    return !!deps['@vibedit/next'];
+  } catch {
+    return false;
+  }
+}
+
 // ── File patchers ─────────────────────────────────────────────────────────────
 
 function patchNextConfig() {
@@ -32,54 +42,50 @@ function patchNextConfig() {
   const file = candidates.find(f => existsSync(join(cwd, f)));
 
   if (!file) {
-    // Create minimal config
     writeFileSync(join(cwd, 'next.config.mjs'), [
-      "import { withVibedit } from '@vibedit/plugin-next';",
-      "export default withVibedit({});",
+      "import { withVibedit } from '@vibedit/next';",
+      "",
+      "/** @type {import('next').NextConfig} */",
+      "const nextConfig = {};",
+      "",
+      "export default withVibedit(nextConfig);",
     ].join('\n'));
-    log('Creado next.config.mjs con withVibedit');
+    log('next.config.mjs criado com withVibedit');
     return;
   }
 
   let content = readFileSync(join(cwd, file), 'utf8');
   if (content.includes('withVibedit')) {
-    warn(`${file} ya tiene withVibedit — omitido`);
+    warn(`${file} já tem withVibedit — pulando`);
     return;
   }
 
-  // Prepend import and wrap export default
   const isEsm = file.endsWith('.mjs') || content.includes('export default');
   const importLine = isEsm
-    ? "import { withVibedit } from '@vibedit/plugin-next';"
-    : "const { withVibedit } = require('@vibedit/plugin-next');";
+    ? "import { withVibedit } from '@vibedit/next';"
+    : "const { withVibedit } = require('@vibedit/next');";
 
-  content = content
-    .replace(/^(import|const)/, `${importLine}\n$1`)
-    .replace(/export default\s+(\w+)/, 'export default withVibedit($1)')
-    .replace(/module\.exports\s*=\s*(\w+)/, 'module.exports = withVibedit($1)');
+  // Prepend import line
+  content = importLine + '\n' + content;
+
+  // Wrap export default someVar  →  export default withVibedit(someVar)
+  content = content.replace(
+    /export default\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*;?(\s*)$/m,
+    'export default withVibedit($1);$2'
+  );
+  // Wrap inline object: export default { ... }  →  export default withVibedit({ ... })
+  content = content.replace(
+    /export default\s*(\{[\s\S]*?\})\s*;?(\s*)$/m,
+    'export default withVibedit($1);$2'
+  );
+  // CJS: module.exports = x  →  module.exports = withVibedit(x)
+  content = content.replace(
+    /module\.exports\s*=\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*;?/,
+    'module.exports = withVibedit($1);'
+  );
 
   writeFileSync(join(cwd, file), content);
-  log(`${file} actualizado con withVibedit`);
-}
-
-function createBabelConfig() {
-  const babelFile = join(cwd, 'babel.config.js');
-  if (existsSync(babelFile)) {
-    warn('babel.config.js ya existe — verificá que incluya el plugin de Vibedit');
-    return;
-  }
-  writeFileSync(babelFile, [
-    "/** @type {import('@babel/core').TransformOptions} */",
-    "module.exports = {",
-    "  presets: ['next/babel'],",
-    "  plugins: [",
-    "    process.env.NODE_ENV === 'development'",
-    "      ? require.resolve('@vibedit/plugin-next/dist/vibedit-babel-plugin.cjs')",
-    "      : null,",
-    "  ].filter(Boolean),",
-    "};",
-  ].join('\n'));
-  log('babel.config.js creado');
+  log(`${file} atualizado com withVibedit`);
 }
 
 function patchLayout() {
@@ -88,15 +94,17 @@ function patchLayout() {
     'src/app/layout.tsx', 'src/app/layout.jsx',
   ];
   const file = candidates.find(f => existsSync(join(cwd, f)));
+
   if (!file) {
-    warn('No se encontró app/layout.tsx — agregá manualmente el Script de Vibedit');
+    warn('Arquivo app/layout.tsx não encontrado — adicione manualmente o Script do Vibedit:');
     printLayoutSnippet();
     return;
   }
 
   let content = readFileSync(join(cwd, file), 'utf8');
+
   if (content.includes('_vibedit')) {
-    warn(`${file} ya tiene el script de Vibedit — omitido`);
+    warn(`${file} já tem o script do Vibedit — pulando`);
     return;
   }
 
@@ -108,33 +116,34 @@ function patchLayout() {
     );
   }
 
-  // Inject scripts before </body>
-  const scriptSnippet = `
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          <Script id="vibedit-port" strategy="beforeInteractive"
-            dangerouslySetInnerHTML={{ __html: 'window.__VIBEDIT_PORT__ = 4242;' }} />
-          <Script src="/_vibedit/overlay.js" strategy="afterInteractive" />
-        </>
-      )}`;
+  // Add suppressHydrationWarning to <body if not present
+  content = content.replace(
+    /<body([^>]*)>/,
+    (match, attrs) => {
+      if (attrs.includes('suppressHydrationWarning')) return match;
+      return `<body${attrs} suppressHydrationWarning>`;
+    }
+  );
+
+  // Inject Script before </body>
+  const scriptSnippet =
+    `      {process.env.NODE_ENV === 'development' && (\n` +
+    `        <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />\n` +
+    `      )}`;
 
   content = content.replace('</body>', `${scriptSnippet}\n      </body>`);
   writeFileSync(join(cwd, file), content);
-  log(`${file} actualizado con los scripts de Vibedit`);
+  log(`${file} atualizado com o script do Vibedit`);
 }
 
 function printLayoutSnippet() {
   console.log(`
-  Agregá esto dentro del <body> en tu layout:
+  Adicione isto dentro do <body> no seu layout.tsx:
 
   import Script from 'next/script';
 
   {process.env.NODE_ENV === 'development' && (
-    <>
-      <Script id="vibedit-port" strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: 'window.__VIBEDIT_PORT__ = 4242;' }} />
-      <Script src="/_vibedit/overlay.js" strategy="afterInteractive" />
-    </>
+    <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />
   )}
 `);
 }
@@ -144,63 +153,61 @@ function printLayoutSnippet() {
 const command = process.argv[2];
 
 if (command === 'init') {
-  title('Vibedit — configurando tu proyecto...\n');
+  title('Vibedit — configurando seu projeto Next.js...\n');
 
   // 1. Detect framework
   let framework;
   try {
     framework = detectFramework();
   } catch {
-    error('No se encontró package.json. Ejecutá el comando desde la raíz de tu proyecto.');
+    error('package.json não encontrado. Execute o comando na raiz do seu projeto.');
     process.exit(1);
   }
 
-  if (!framework) {
-    error('No se detectó Next.js ni Vite. Vibedit requiere uno de los dos.');
+  if (framework !== 'next') {
+    error('Next.js não detectado. Para projetos Vite, use @vibedit/vite.');
     process.exit(1);
   }
 
-  log(`Framework detectado: ${framework}`);
+  log('Framework detectado: Next.js');
 
-  // 2. Install packages
-  title('Instalando paquetes...');
-  try {
-    execSync('npm install @vibedit/server @vibedit/plugin-next @babel/runtime --save-dev', {
-      stdio: 'inherit', cwd
-    });
-  } catch {
-    error('Error al instalar paquetes. Verificá tu conexión a internet.');
-    process.exit(1);
+  // 2. Install package (skip if already in package.json)
+  if (isAlreadyInstalled()) {
+    log('@vibedit/next já está instalado');
+  } else {
+    title('Instalando @vibedit/next...');
+    try {
+      execSync('npm install --save-dev @vibedit/next', { stdio: 'inherit', cwd });
+    } catch {
+      error('Erro ao instalar o pacote. Verifique sua conexão com a internet.');
+      process.exit(1);
+    }
   }
 
   // 3. Patch config files
-  title('Configurando archivos...');
-  if (framework === 'next') {
-    patchNextConfig();
-    createBabelConfig();
-    patchLayout();
-  }
+  title('Configurando arquivos...');
+  patchNextConfig();
+  patchLayout();
 
   // 4. Done
   console.log(`
-\x1b[1m\x1b[32m¡Vibedit instalado correctamente!\x1b[0m
+\x1b[1m\x1b[32m✓ Vibedit instalado com sucesso!\x1b[0m
 
-Para empezar:
-  1. Ejecutá \x1b[1mnpx next dev\x1b[0m
-  2. Abrí tu proyecto en el navegador
-  3. Presioná \x1b[1mCtrl + Shift + E\x1b[0m para activar el editor
+Para começar:
+  1. Reinicie o servidor: \x1b[1mnpm run dev\x1b[0m
+  2. Abra o app no navegador
+  3. Procure o botão azul no \x1b[1mcanto inferior direito\x1b[0m
 
-¿Preguntas? → https://github.com/tu-usuario/vibedit
+Dúvidas ou problemas → https://github.com/welingtondesosa/vibedit/issues
 `);
 
 } else {
   console.log(`
 \x1b[1mVibedit CLI\x1b[0m
 
-Comandos disponibles:
-  \x1b[1minit\x1b[0m    Configura Vibedit en el proyecto actual
-
 Uso:
-  npx vibedit init
+  \x1b[1mnpx @vibedit/next init\x1b[0m    Configura o Vibedit no projeto atual
+
+Documentação: https://github.com/welingtondesosa/vibedit
 `);
 }

@@ -22,38 +22,15 @@ Works with **Next.js**, **Vite**, and any React-based framework.
 
 ### Next.js
 
+One command sets everything up automatically:
+
 ```bash
-npm install --save-dev @vibedit/next
+npx @vibedit/next init
 ```
 
-**`next.config.mjs`**
-```js
-import { withVibedit } from '@vibedit/next';
+This installs the package, patches your `next.config.mjs`, and injects the overlay script into `app/layout.tsx`. Then restart your dev server and look for the Vibedit button in the bottom-right corner.
 
-export default withVibedit({
-  // your existing Next.js config
-});
-```
-
-**`app/layout.tsx`** — add the overlay in development only:
-```tsx
-import Script from 'next/script';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        {children}
-        {process.env.NODE_ENV === 'development' && (
-          <Script src="/_vibedit/overlay.js" strategy="beforeInteractive" />
-        )}
-      </body>
-    </html>
-  );
-}
-```
-
-Run `npm run dev` — look for the Vibedit button in the bottom-right corner.
+**Manual setup:** see the [@vibedit/next README](packages/plugin-next/README.md).
 
 ---
 

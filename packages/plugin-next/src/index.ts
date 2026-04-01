@@ -17,11 +17,18 @@ let serverInstance: VibeditServer | null = null;
 
 function resolveOverlayBundle(): string | null {
   const candidates = [
-    // 1. Installed as npm package — overlay is bundled alongside the plugin
     path.resolve(__dirname, 'vibedit-overlay.iife.js'),
-    // 2. Monorepo development — sibling packages
     path.resolve(__dirname, '../../overlay/dist/vibedit-overlay.iife.js'),
     path.resolve(__dirname, '../../../overlay/dist/vibedit-overlay.iife.js'),
+  ];
+  return candidates.find((p) => fs.existsSync(p)) ?? null;
+}
+
+function resolveBabelPlugin(): string | null {
+  const candidates = [
+    path.resolve(__dirname, 'vibedit-babel-plugin.cjs'),
+    path.resolve(__dirname, '../../overlay/dist/vibedit-babel-plugin.cjs'),
+    path.resolve(__dirname, '../../../overlay/dist/vibedit-babel-plugin.cjs'),
   ];
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }
@@ -29,10 +36,9 @@ function resolveOverlayBundle(): string | null {
 function copyOverlayToPublic(cwd: string): void {
   const overlayPath = resolveOverlayBundle();
   if (!overlayPath) {
-    console.warn('[Vibedit] Overlay bundle not found. Run `npm run build` in packages/overlay first.');
+    console.warn('[Vibedit] Overlay bundle not found.');
     return;
   }
-
   const destDir = path.join(cwd, 'public', '_vibedit');
   fs.mkdirSync(destDir, { recursive: true });
   fs.copyFileSync(overlayPath, path.join(destDir, 'overlay.js'));
@@ -60,9 +66,26 @@ export function withVibedit(
   return {
     ...nextConfig,
     webpack(config, context) {
-      // Start server and copy overlay only once, on the client-side compilation
       if (context.dev && !context.isServer) {
         startServer(options, context.dir ?? process.cwd());
+
+        // Inject babel plugin for source-location tracking without requiring babel.config.js
+        const babelPlugin = resolveBabelPlugin();
+        if (babelPlugin) {
+          config.module.rules.unshift({
+            test: /\.[jt]sx$/,
+            exclude: /node_modules/,
+            enforce: 'pre' as const,
+            use: [{
+              loader: require.resolve('babel-loader'),
+              options: {
+                plugins: [babelPlugin],
+                babelrc: false,
+                configFile: false,
+              },
+            }],
+          });
+        }
       }
 
       if (typeof nextConfig.webpack === 'function') {
