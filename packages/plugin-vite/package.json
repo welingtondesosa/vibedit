@@ -1,6 +1,6 @@
 {
   "name": "@vibedit/vite",
-  "version": "0.1.12",
+  "version": "0.2.0",
   "description": "Visual editing overlay for Vite — edit styles live in your browser",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,8 +13,12 @@
       "require": "./dist/index.cjs"
     }
   },
+  "bin": {
+    "vibedit": "bin/vibedit.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "scripts": {
     "build": "tsup && node scripts/copy-assets.mjs",

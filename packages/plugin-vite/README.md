@@ -9,13 +9,28 @@
 
 ## Install
 
+The fastest way — one command sets everything up automatically:
+
+```bash
+npx @vibedit/vite init
+```
+
+This will:
+- Install `@vibedit/vite` as a devDependency
+- Add the `vibedit()` plugin to your `vite.config.ts`
+- If you deploy to Cloudflare Pages or similar, it creates a separate `vite.config.dev.ts` so your production build stays clean
+
+Then run `npm run dev` and look for the Vibedit button in the bottom-right corner.
+
+---
+
+## Manual setup
+
 ```bash
 npm install --save-dev @vibedit/vite
 ```
 
-## Setup
-
-**`vite.config.ts`** (dev only — keep your production config separate):
+**`vite.config.ts`**
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -26,7 +41,7 @@ export default defineConfig({
 });
 ```
 
-> **Tip:** If you deploy with Cloudflare Pages or similar, create a separate `vite.config.dev.ts` with vibedit and run dev as `vite --config vite.config.dev.ts`. Keep your production `vite.config.ts` without the import so the build never tries to resolve `@vibedit/vite`.
+> **Cloudflare Pages / production deploys:** Keep your production `vite.config.ts` without the vibedit import. Create a `vite.config.dev.ts` with the plugin and run dev as `vite --config vite.config.dev.ts`.
 
 Run `npm run dev` and look for the Vibedit button in the bottom-right corner.
 
