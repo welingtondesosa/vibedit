@@ -28,8 +28,8 @@ export interface Translations {
   hero: {
     badge: string;
     headline: string;
+    localBadge: string;
     sub: string;
-    subHighlight: string;
     copy: string;
     copied: string;
   };
@@ -67,9 +67,9 @@ export const T: Record<Lang, Translations> = {
   en: {
     hero: {
       badge: 'Open Source · Free · MIT License',
-      headline: 'Stop hunting for CSS. Edit your React UI visually.',
+      headline: 'Stop wasting AI credits on visual tweaks.',
+      localBadge: '100% local · No accounts · No cloud · No credits',
       sub: 'You know the loop: open DevTools, guess the class name, hunt the file, edit, save, check. Vibedit replaces that loop — click any element, edit from a panel, and watch your source files update instantly.',
-      subHighlight: 'source files update instantly',
       copy: 'copy',
       copied: '✓ copied',
     },
@@ -181,9 +181,9 @@ export const T: Record<Lang, Translations> = {
   es: {
     hero: {
       badge: 'Open Source · Gratis · Licencia MIT',
-      headline: 'Dejá de buscar CSS. Editá tu UI de React visualmente.',
+      headline: 'Dejá de gastar créditos de IA en ajustes visuales.',
+      localBadge: '100% local · Sin cuentas · Sin cloud · Sin créditos',
       sub: 'Conocés el loop: DevTools, adivinar el nombre de la clase, buscar el archivo, editar, guardar, revisar. Vibedit reemplaza ese loop — hacé clic en cualquier elemento, editá desde el panel, y mirá cómo tus archivos fuente se actualizan al instante.',
-      subHighlight: 'archivos fuente se actualizan al instante',
       copy: 'copiar',
       copied: '✓ copiado',
     },
@@ -295,9 +295,9 @@ export const T: Record<Lang, Translations> = {
   pt: {
     hero: {
       badge: 'Open Source · Gratuito · Licença MIT',
-      headline: 'Pare de procurar CSS. Edite sua UI React visualmente.',
+      headline: 'Pare de gastar créditos de IA em ajustes visuais.',
+      localBadge: '100% local · Sem contas · Sem cloud · Sem créditos',
       sub: 'Você conhece o loop: DevTools, adivinhar o nome da classe, procurar o arquivo, editar, salvar, verificar. O Vibedit substitui esse loop — clique em qualquer elemento, edite pelo painel e veja seus arquivos fonte atualizarem na hora.',
-      subHighlight: 'arquivos fonte atualizarem na hora',
       copy: 'copiar',
       copied: '✓ copiado',
     },
