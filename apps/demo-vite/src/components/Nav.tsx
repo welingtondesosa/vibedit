@@ -22,17 +22,19 @@ export function Nav({ lang, onLangChange }: NavProps) {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}
     >
-      <span
-        style={{
-          fontSize: '17px',
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          color: '#e2e8f0',
-          flexShrink: 0,
-        }}
-      >
-        Vibedit
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <img src="/favicon.svg" alt="Vibedit" style={{ width: '22px', height: '22px' }} />
+        <span
+          style={{
+            fontSize: '17px',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: '#e2e8f0',
+          }}
+        >
+          Vibedit
+        </span>
+      </div>
 
       <div className="vb-nav-links">
         {/* Language selector */}
