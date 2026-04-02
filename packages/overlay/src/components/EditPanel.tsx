@@ -661,7 +661,34 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
       setSavingCss(null);
 
       if (result.success) {
-        onToast(`${property}: ${value}`, 'success');
+        // Inject @media rule into the DOM for immediate preview (JSX breakpoint changes)
+        const vid = (result as any).data?.vid as string | undefined;
+        if (vid && breakpoint !== 'all') {
+          const cssProp = toKebabCase(property);
+          const mediaQuery = breakpoint === 'mobile'
+            ? '@media (max-width: 767px)'
+            : '@media (min-width: 1024px)';
+          const styleId = `vibedit-bp-${vid}`;
+          let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+          if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = styleId;
+            document.head.appendChild(styleEl);
+          }
+          // Update or append rule
+          const className = `vbe-${vid}`;
+          styleEl.textContent = `${mediaQuery} { .${className} { ${cssProp}: ${value}; } }`;
+          // Add class to the live DOM element for preview
+          (el as HTMLElement).classList.add(className);
+
+          if ((result as any).data?.firstImport) {
+            onToast(`Style saved. CSS file created — it's auto-imported in your entry point.`, 'success');
+          } else {
+            onToast(`${property}: ${value} (${breakpoint})`, 'success');
+          }
+        } else {
+          onToast(`${property}: ${value}`, 'success');
+        }
       } else {
         onToast(result.error ?? 'Error al aplicar cambio', 'error');
       }

@@ -31,7 +31,7 @@ export class FileWriter {
     this.backup = new BackupManager(config.projectRoot, config.backupDir);
   }
 
-  async applyChange(change: Change): Promise<void> {
+  async applyChange(change: Change): Promise<Record<string, unknown> | undefined> {
     if (change.type === 'undo') {
       await this.undo();
       return;
@@ -56,8 +56,7 @@ export class FileWriter {
 
     switch (change.type) {
       case 'css':
-        await this.applyCssChange(filePath, change);
-        break;
+        return await this.applyCssChange(filePath, change);
       case 'text':
         await this.applyTextChange(filePath, change);
         break;
@@ -68,13 +67,20 @@ export class FileWriter {
         await this.applyReorderChange(filePath, change);
         break;
     }
+    return undefined;
   }
 
-  private async applyCssChange(filePath: string, change: CssChange): Promise<void> {
+  private async applyCssChange(filePath: string, change: CssChange): Promise<Record<string, unknown> | undefined> {
     if (filePath.endsWith('.html')) {
       await this.applyCssChangeHtml(filePath, change);
       return;
     }
+
+    const bp = change.breakpoint ?? 'all';
+    if (bp !== 'all') {
+      return await this.applyCssChangeJsxBreakpoint(filePath, change);
+    }
+
     const { project, sourceFile } = getOrCreateProject(filePath);
     const element = findJsxElementAtPosition(sourceFile, change.line, change.column);
 
@@ -85,6 +91,105 @@ export class FileWriter {
     setStyleOnElement(sourceFile, element, change.property, change.value);
     await this.saveFile(filePath, sourceFile.getFullText());
     project.removeSourceFile(sourceFile);
+    return undefined;
+  }
+
+  private async applyCssChangeJsxBreakpoint(filePath: string, change: CssChange): Promise<Record<string, unknown>> {
+    const vid = crypto.createHash('sha1')
+      .update(`${filePath}:${change.line}:${change.column}`)
+      .digest('hex').slice(0, 8);
+    const className = `vbe-${vid}`;
+    const cssProp = change.property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const mediaQuery = change.breakpoint === 'mobile'
+      ? '@media (max-width: 767px)'
+      : '@media (min-width: 1024px)';
+
+    // 1. Add className to the JSX element
+    const { project, sourceFile } = getOrCreateProject(filePath);
+    const element = findJsxElementAtPosition(sourceFile, change.line, change.column);
+
+    if (element) {
+      const { SyntaxKind } = await import('ts-morph');
+      const openingEl = element.getKind() === SyntaxKind.JsxElement
+        ? (element as import('ts-morph').JsxElement).getOpeningElement()
+        : (element as import('ts-morph').JsxSelfClosingElement);
+
+      const classAttr = (openingEl as import('ts-morph').JsxOpeningElement)
+        .getAttribute('className') as import('ts-morph').JsxAttribute | undefined;
+
+      if (!classAttr) {
+        (openingEl as import('ts-morph').JsxOpeningElement)
+          .addAttribute({ name: 'className', initializer: `"${className}"` });
+      } else {
+        const init = classAttr.getInitializer();
+        const text = init?.getText() ?? '""';
+        if (!text.includes(className)) {
+          if (text.startsWith('"') || text.startsWith("'")) {
+            const inner = text.slice(1, -1);
+            classAttr.setInitializer(`"${inner} ${className}"`);
+          } else {
+            // Expression like {styles.foo} → {`${styles.foo} vbe-xxxx`}
+            const inner = text.slice(1, -1);
+            classAttr.setInitializer(`{\`${inner} ${className}\`}`);
+          }
+        }
+      }
+
+      await this.saveFile(filePath, sourceFile.getFullText());
+    }
+    project.removeSourceFile(sourceFile);
+
+    // 2. Write/update vibedit-responsive.css
+    const srcDir = path.join(this.config.projectRoot, 'src');
+    const cssDir = fs.existsSync(srcDir) ? srcDir : this.config.projectRoot;
+    const cssFile = path.join(cssDir, 'vibedit-responsive.css');
+    const firstImport = !fs.existsSync(cssFile);
+
+    let cssContent = firstImport
+      ? '/* Vibedit responsive overrides — generated automatically */\n\n'
+      : fs.readFileSync(cssFile, 'utf-8');
+
+    const rule = `  .${className} { ${cssProp}: ${change.value}; }`;
+    const mediaRe = new RegExp(
+      `(${mediaQuery.replace(/[()]/g, '\\$&')}\\s*\\{)([\\s\\S]*?)(\\n\\})`,
+      'g'
+    );
+    if (mediaRe.test(cssContent)) {
+      cssContent = cssContent.replace(mediaRe, (_, open, body, close) => {
+        const classRe = new RegExp(`\\.${className}\\s*\\{[^}]*\\}`, 'g');
+        if (classRe.test(body)) return open + body.replace(classRe, rule) + close;
+        return open + body + `\n${rule}` + close;
+      });
+    } else {
+      cssContent += `${mediaQuery} {\n${rule}\n}\n`;
+    }
+
+    fs.writeFileSync(cssFile, cssContent, 'utf-8');
+
+    // 3. Auto-import the CSS file in the project entry point (first time only)
+    if (firstImport) {
+      const entryPoints = [
+        'src/main.tsx', 'src/main.ts', 'src/main.jsx', 'src/main.js',
+        'src/index.tsx', 'src/index.ts',
+        'pages/_app.tsx', 'pages/_app.jsx', 'pages/_app.js',
+        'app/layout.tsx', 'app/layout.jsx', 'app/layout.js',
+      ];
+      for (const rel of entryPoints) {
+        const entryPath = path.join(this.config.projectRoot, rel);
+        if (!fs.existsSync(entryPath)) continue;
+        const content = fs.readFileSync(entryPath, 'utf-8');
+        if (!content.includes('vibedit-responsive.css')) {
+          const relCss = path.relative(path.dirname(entryPath), cssFile).replace(/\\/g, '/');
+          const importLine = rel.endsWith('.css')
+            ? `@import '${relCss}';\n`
+            : `import '${relCss}';\n`;
+          fs.writeFileSync(entryPath, importLine + content, 'utf-8');
+        }
+        break;
+      }
+    }
+
+    return { vid, cssFile, firstImport };
   }
 
   private async applyCssChangeHtml(filePath: string, change: CssChange): Promise<void> {

@@ -46,8 +46,9 @@ export class VibeditServer {
       const response: ServerResponse = { id: msg.id, success: false };
 
       try {
-        await this.fileWriter.applyChange(msg.change);
+        const result = await this.fileWriter.applyChange(msg.change);
         response.success = true;
+        if (result) response.data = result;
         console.log(`[Vibedit] ${msg.change.type} change applied to ${('file' in msg.change ? msg.change.file : 'file')}`);
       } catch (err) {
         response.error = err instanceof Error ? err.message : 'Unknown error';

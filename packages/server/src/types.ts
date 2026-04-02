@@ -70,6 +70,11 @@ export interface ServerResponse {
   id: string;
   success: boolean;
   error?: string;
+  data?: {
+    vid?: string;        // stable class name hash for breakpoint CSS preview
+    cssFile?: string;    // path to vibedit-responsive.css
+    firstImport?: boolean; // true if CSS file was just created (needs manual import)
+  };
 }
 
 export interface UndoEntry {
