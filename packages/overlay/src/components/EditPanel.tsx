@@ -634,10 +634,30 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
 
   const handleCssChange = useCallback(
     async (property: string, value: string): Promise<void> => {
-      // Immediate DOM preview
       const el = selected.element as HTMLElement;
       const camelProp = property.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-      (el.style as unknown as Record<string, string>)[camelProp] = value;
+      const cssProp = toKebabCase(property);
+
+      if (breakpoint === 'all') {
+        // Immediate inline preview — only for "all" (no media query)
+        (el.style as unknown as Record<string, string>)[camelProp] = value;
+      } else {
+        // Preview via a temporary <style> tag so it respects the media query
+        const mediaQuery = breakpoint === 'mobile'
+          ? '@media (max-width: 767px)'
+          : '@media (min-width: 1024px)';
+        const previewId = `vibedit-preview-${camelProp}`;
+        let previewEl = document.getElementById(previewId) as HTMLStyleElement | null;
+        if (!previewEl) {
+          previewEl = document.createElement('style');
+          previewEl.id = previewId;
+          document.head.appendChild(previewEl);
+        }
+        // Use a high-specificity selector tied to the element via a temp attribute
+        el.setAttribute('data-vibedit-preview', 'true');
+        previewEl.textContent = `${mediaQuery} { [data-vibedit-preview="true"] { ${cssProp}: ${value}; } }`;
+      }
+
       setLocalStyles((prev) => ({ ...prev, [property]: value }));
 
       if (!selected.sourceFile || !selected.line) {
@@ -661,10 +681,14 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
       setSavingCss(null);
 
       if (result.success) {
-        // Inject @media rule into the DOM for immediate preview (JSX breakpoint changes)
+        // Replace temp preview with permanent class-based rule
         const vid = (result as any).data?.vid as string | undefined;
         if (vid && breakpoint !== 'all') {
-          const cssProp = toKebabCase(property);
+          // Remove temporary preview style + attribute
+          el.removeAttribute('data-vibedit-preview');
+          const previewEl = document.getElementById(`vibedit-preview-${camelProp}`);
+          if (previewEl) previewEl.remove();
+
           const mediaQuery = breakpoint === 'mobile'
             ? '@media (max-width: 767px)'
             : '@media (min-width: 1024px)';
@@ -675,11 +699,9 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
             styleEl.id = styleId;
             document.head.appendChild(styleEl);
           }
-          // Update or append rule
           const className = `vbe-${vid}`;
           styleEl.textContent = `${mediaQuery} { .${className} { ${cssProp}: ${value}; } }`;
-          // Add class to the live DOM element for preview
-          (el as HTMLElement).classList.add(className);
+          el.classList.add(className);
 
           if ((result as any).data?.firstImport) {
             onToast(`Style saved. CSS file created — it's auto-imported in your entry point.`, 'success');
