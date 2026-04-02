@@ -179,7 +179,8 @@ export class FileWriter {
         if (!fs.existsSync(entryPath)) continue;
         const content = fs.readFileSync(entryPath, 'utf-8');
         if (!content.includes('vibedit-responsive.css')) {
-          const relCss = path.relative(path.dirname(entryPath), cssFile).replace(/\\/g, '/');
+          let relCss = path.relative(path.dirname(entryPath), cssFile).replace(/\\/g, '/');
+          if (!relCss.startsWith('.')) relCss = `./${relCss}`;
           const importLine = rel.endsWith('.css')
             ? `@import '${relCss}';\n`
             : `import '${relCss}';\n`;
