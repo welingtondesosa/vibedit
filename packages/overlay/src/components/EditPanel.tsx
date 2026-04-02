@@ -513,12 +513,21 @@ interface EditPanelProps {
   onToast: (message: string, type: 'success' | 'error') => void;
 }
 
+type Breakpoint = 'all' | 'mobile' | 'desktop';
+
+const BREAKPOINTS: { key: Breakpoint; label: string; icon: string }[] = [
+  { key: 'all',     label: 'All',     icon: '◻' },
+  { key: 'mobile',  label: 'Mobile',  icon: '📱' },
+  { key: 'desktop', label: 'Desktop', icon: '🖥' },
+];
+
 export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps): React.ReactElement {
   const [localStyles, setLocalStyles] = useState<Record<string, string>>(selected.styles);
   const [originalStyles] = useState<Record<string, string>>(selected.styles);
   const [savingCss, setSavingCss] = useState<string | null>(null);
   const [savingProp, setSavingProp] = useState<string | null>(null);
   const [savingText, setSavingText] = useState(false);
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>('all');
 
   // Text content of the selected element (direct text only)
   const elementText = (() => {
@@ -646,6 +655,7 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
           property: toKebabCase(property),
           value,
           componentName: selected.componentName,
+          breakpoint,
         },
       });
       setSavingCss(null);
@@ -879,6 +889,26 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
           onChangeProp={handlePropChange}
           saving={savingProp}
         />
+
+        {/* Breakpoint selector */}
+        <div style={{ borderBottom: `1px solid ${T.border}`, padding: '8px 14px', background: T.surface2, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ color: T.textSecondary, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Breakpoint</span>
+          {BREAKPOINTS.map((bp) => (
+            <button
+              key={bp.key}
+              onClick={() => setBreakpoint(bp.key)}
+              style={{
+                flex: 1, padding: '4px 0', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '11px', fontFamily: 'inherit',
+                background: breakpoint === bp.key ? T.accent : T.surface,
+                color: breakpoint === bp.key ? '#fff' : T.textSecondary,
+                fontWeight: breakpoint === bp.key ? 700 : 400,
+              }}
+              title={bp.key === 'mobile' ? '< 768px' : bp.key === 'desktop' ? '≥ 1024px' : 'All screen sizes (inline style)'}
+            >
+              {bp.icon} {bp.label}
+            </button>
+          ))}
+        </div>
 
         {/* CSS sections */}
         {GROUPS.map((group) => (

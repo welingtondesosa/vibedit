@@ -1,6 +1,6 @@
 {
   "name": "@vibedit/vite",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Visual editing overlay for Vite — edit styles live in your browser",
   "type": "module",
   "main": "./dist/index.cjs",

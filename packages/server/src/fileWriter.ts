@@ -9,6 +9,7 @@ import {
   replaceTextContent,
   reorderChildren,
 } from './astHelpers.js';
+import * as crypto from 'crypto';
 import type {
   Change,
   CssChange,
@@ -87,11 +88,13 @@ export class FileWriter {
   }
 
   private async applyCssChangeHtml(filePath: string, change: CssChange): Promise<void> {
-    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
-    const targetLine = change.line - 1; // convert to 0-indexed
-    const targetCol = change.column ?? 0;
+    const breakpoint = change.breakpoint ?? 'all';
     const cssProp = change.property.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+    const targetLine = change.line - 1;
+    const targetCol = change.column ?? 0;
 
+    // Find the target HTML tag near the specified line/column
     let foundIdx = -1;
     let best: { index: number; full: string; attrs: string } | null = null;
 
@@ -99,12 +102,10 @@ export class FileWriter {
       for (const offset of delta === 0 ? [0] : [delta, -delta]) {
         const idx = targetLine + offset;
         if (idx < 0 || idx >= lines.length) continue;
-        const lineContent = lines[idx];
-
         const lineTagRe = /<([a-zA-Z][a-zA-Z0-9-]*)(\s[^>]*)?>/g;
         const tagMatches: { index: number; full: string; attrs: string }[] = [];
         let tm: RegExpExecArray | null;
-        while ((tm = lineTagRe.exec(lineContent)) !== null) {
+        while ((tm = lineTagRe.exec(lines[idx])) !== null) {
           tagMatches.push({ index: tm.index, full: tm[0], attrs: tm[2] ?? '' });
         }
         if (tagMatches.length === 0) continue;
@@ -125,21 +126,77 @@ export class FileWriter {
       throw new Error(`No HTML tag found near ${change.file}:${change.line}`);
     }
 
-    const styleRe = /style="([^"]*)"/;
-    let newTag: string;
-    if (styleRe.test(best.attrs)) {
-      newTag = best.full.replace(styleRe, (_, existing) => {
-        const propRe = new RegExp(`${cssProp}\\s*:[^;]*;?\\s*`);
-        const updated = propRe.test(existing)
-          ? existing.replace(propRe, `${cssProp}: ${change.value}; `)
-          : `${existing.trimEnd()} ${cssProp}: ${change.value};`;
-        return `style="${updated.trim()}"`;
-      });
+    if (breakpoint === 'all') {
+      // Inline style — current behavior
+      const styleRe = /style="([^"]*)"/;
+      let newTag: string;
+      if (styleRe.test(best.attrs)) {
+        newTag = best.full.replace(styleRe, (_, existing) => {
+          const propRe = new RegExp(`${cssProp}\\s*:[^;]*;?\\s*`);
+          const updated = propRe.test(existing)
+            ? existing.replace(propRe, `${cssProp}: ${change.value}; `)
+            : `${existing.trimEnd()} ${cssProp}: ${change.value};`;
+          return `style="${updated.trim()}"`;
+        });
+      } else {
+        newTag = best.full.replace(/>$/, ` style="${cssProp}: ${change.value};">`);
+      }
+      lines[foundIdx] = lines[foundIdx].replace(best.full, newTag);
     } else {
-      newTag = best.full.replace(/>$/, ` style="${cssProp}: ${change.value};">`);
+      // Breakpoint-specific: inject/update <style id="vibedit-responsive"> in <head>
+      // Assign a stable data-vid identifier to the element
+      const vidHash = crypto
+        .createHash('sha1')
+        .update(`${filePath}:${change.line}:${change.column}`)
+        .digest('hex')
+        .slice(0, 8);
+
+      const vidAttrRe = /data-vid="([^"]*)"/;
+      if (!vidAttrRe.test(best.attrs)) {
+        const newTag = best.full.replace(/>$/, ` data-vid="${vidHash}">`);
+        lines[foundIdx] = lines[foundIdx].replace(best.full, newTag);
+      }
+
+      const mediaQuery = breakpoint === 'mobile'
+        ? '@media (max-width: 767px)'
+        : '@media (min-width: 1024px)';
+      const selector = `[data-vid="${vidHash}"]`;
+      const rule = `  ${selector} { ${cssProp}: ${change.value}; }`;
+      const mediaBlock = `${mediaQuery} {\n${rule}\n}`;
+
+      const html = lines.join('\n');
+      const styleTagRe = /<style id="vibedit-responsive">([\s\S]*?)<\/style>/;
+      const existingMatch = styleTagRe.exec(html);
+
+      let updatedHtml: string;
+      if (existingMatch) {
+        let existing = existingMatch[1];
+        // Update or add the rule inside the existing media block
+        const mediaBlockRe = new RegExp(
+          `(${mediaQuery.replace(/[()]/g, '\\$&')}\\s*\\{)([\\s\\S]*?)(\\})`,
+          'g'
+        );
+        if (mediaBlockRe.test(existing)) {
+          existing = existing.replace(mediaBlockRe, (_, open, body, close) => {
+            const propRe = new RegExp(`${selector}\\s*\\{[^}]*${cssProp}\\s*:[^;}]*;?\\s*\\}`, 'g');
+            if (propRe.test(body)) {
+              return open + body.replace(propRe, rule) + close;
+            }
+            return open + body + `\n  ${rule}` + close;
+          });
+        } else {
+          existing = existing.trimEnd() + `\n${mediaBlock}\n`;
+        }
+        updatedHtml = html.replace(styleTagRe, `<style id="vibedit-responsive">${existing}</style>`);
+      } else {
+        const styleTag = `<style id="vibedit-responsive">\n${mediaBlock}\n</style>`;
+        updatedHtml = html.replace('</head>', `${styleTag}\n</head>`);
+      }
+
+      fs.writeFileSync(filePath, updatedHtml, 'utf-8');
+      return;
     }
 
-    lines[foundIdx] = lines[foundIdx].replace(best.full, newTag);
     fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
   }
 

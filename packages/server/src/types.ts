@@ -8,6 +8,8 @@ export interface VibeditConfig {
 
 export type ChangeType = 'css' | 'text' | 'prop' | 'reorder' | 'global-text';
 
+export type Breakpoint = 'all' | 'mobile' | 'desktop';
+
 export interface CssChange {
   type: 'css';
   file: string;
@@ -16,6 +18,7 @@ export interface CssChange {
   property: string;
   value: string;
   componentName: string;
+  breakpoint?: Breakpoint;
 }
 
 export interface TextChange {
