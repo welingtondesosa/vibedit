@@ -80,6 +80,64 @@ const OVERLAY_SCRIPT_TAG = (port: number): string =>
   `<script>window.__VIBEDIT_PORT__ = ${port};</script>
 <script src="/_vibedit/overlay.js"></script>`;
 
+const VOID_TAGS = new Set([
+  'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+  'link', 'meta', 'param', 'source', 'track', 'wbr',
+]);
+const SKIP_TAGS = new Set(['script', 'style']);
+
+/**
+ * Inject data-vibedit-* attributes into a served HTML string.
+ * Reads the original file from disk to get correct line/col numbers,
+ * because Vite prepends <script src="/@vite/client"> which shifts line numbers.
+ */
+function injectHtmlSourceAttrs(servedHtml: string, filePath: string): string {
+  let originalHtml: string;
+  try {
+    originalHtml = fs.readFileSync(filePath, 'utf-8');
+  } catch {
+    return servedHtml;
+  }
+
+  // Build line-offset table for the original file
+  const lineOffsets: number[] = [0];
+  for (let i = 0; i < originalHtml.length; i++) {
+    if (originalHtml[i] === '\n') lineOffsets.push(i + 1);
+  }
+
+  function getLineCol(offset: number): { line: number; col: number } {
+    let lo = 0, hi = lineOffsets.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (lineOffsets[mid] <= offset) lo = mid; else hi = mid - 1;
+    }
+    return { line: lo + 1, col: offset - lineOffsets[lo] + 1 };
+  }
+
+  // Collect {line, col} for each non-void, non-skip tag in the ORIGINAL html (in order)
+  const TAG_RE = /<([a-zA-Z][a-zA-Z0-9-]*)(\s[^>]*)?(\/?>)/g;
+  const positions: Array<{ line: number; col: number }> = [];
+  let m: RegExpExecArray | null;
+  TAG_RE.lastIndex = 0;
+  while ((m = TAG_RE.exec(originalHtml)) !== null) {
+    const tag = m[1].toLowerCase();
+    if (VOID_TAGS.has(tag) || SKIP_TAGS.has(tag)) continue;
+    positions.push(getLineCol(m.index));
+  }
+
+  // Walk served HTML in the same order and inject attributes
+  let posIdx = 0;
+  const SERVED_RE = /<([a-zA-Z][a-zA-Z0-9-]*)(\s[^>]*)?(\/?>)/g;
+  return servedHtml.replace(SERVED_RE, (full, tagName, attrs, close) => {
+    const tag = tagName.toLowerCase();
+    if (VOID_TAGS.has(tag) || SKIP_TAGS.has(tag)) return full;
+    const pos = positions[posIdx++];
+    if (!pos) return full;
+    const dataAttrs = ` data-vibedit-file="${filePath}" data-vibedit-line="${pos.line}" data-vibedit-col="${pos.col}"`;
+    return `<${tagName}${attrs ?? ''}${dataAttrs}${close}`;
+  });
+}
+
 export function vibedit(options: VibeditOptions = {}): Plugin[] {
   const configuredPort = options.port ?? 4242;
   let actualPort = configuredPort;
@@ -150,12 +208,18 @@ export function vibedit(options: VibeditOptions = {}): Plugin[] {
       });
     },
 
-    transformIndexHtml(html) {
+    transformIndexHtml(html, ctx) {
+      // Inject source-location attributes so plain HTML projects get click-to-edit
+      let filePath: string = (ctx as any)?.filename ?? '';
+      if (!filePath && (ctx as any)?.path && projectRoot) {
+        filePath = path.join(projectRoot, (ctx as any).path);
+      }
+      if (filePath && !filePath.includes('node_modules')) {
+        html = injectHtmlSourceAttrs(html, filePath);
+      }
+
       if (resolveOverlayBundle()) {
-        return html.replace(
-          '</body>',
-          `${OVERLAY_SCRIPT_TAG(actualPort)}\n</body>`
-        );
+        return html.replace('</body>', `${OVERLAY_SCRIPT_TAG(actualPort)}\n</body>`);
       }
       return html;
     },

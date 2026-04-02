@@ -70,6 +70,10 @@ export class FileWriter {
   }
 
   private async applyCssChange(filePath: string, change: CssChange): Promise<void> {
+    if (filePath.endsWith('.html')) {
+      await this.applyCssChangeHtml(filePath, change);
+      return;
+    }
     const { project, sourceFile } = getOrCreateProject(filePath);
     const element = findJsxElementAtPosition(sourceFile, change.line, change.column);
 
@@ -82,7 +86,68 @@ export class FileWriter {
     project.removeSourceFile(sourceFile);
   }
 
+  private async applyCssChangeHtml(filePath: string, change: CssChange): Promise<void> {
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+    const targetLine = change.line - 1; // convert to 0-indexed
+    const targetCol = change.column ?? 0;
+    const cssProp = change.property.replace(/([A-Z])/g, '-$1').toLowerCase();
+
+    let foundIdx = -1;
+    let best: { index: number; full: string; attrs: string } | null = null;
+
+    outer: for (let delta = 0; delta <= 5; delta++) {
+      for (const offset of delta === 0 ? [0] : [delta, -delta]) {
+        const idx = targetLine + offset;
+        if (idx < 0 || idx >= lines.length) continue;
+        const lineContent = lines[idx];
+
+        const lineTagRe = /<([a-zA-Z][a-zA-Z0-9-]*)(\s[^>]*)?>/g;
+        const tagMatches: { index: number; full: string; attrs: string }[] = [];
+        let tm: RegExpExecArray | null;
+        while ((tm = lineTagRe.exec(lineContent)) !== null) {
+          tagMatches.push({ index: tm.index, full: tm[0], attrs: tm[2] ?? '' });
+        }
+        if (tagMatches.length === 0) continue;
+
+        let bestMatch = tagMatches[0];
+        let bestDist = Math.abs(bestMatch.index - targetCol);
+        for (const t of tagMatches.slice(1)) {
+          const dist = Math.abs(t.index - targetCol);
+          if (dist < bestDist) { bestDist = dist; bestMatch = t; }
+        }
+        foundIdx = idx;
+        best = bestMatch;
+        break outer;
+      }
+    }
+
+    if (!best || foundIdx === -1) {
+      throw new Error(`No HTML tag found near ${change.file}:${change.line}`);
+    }
+
+    const styleRe = /style="([^"]*)"/;
+    let newTag: string;
+    if (styleRe.test(best.attrs)) {
+      newTag = best.full.replace(styleRe, (_, existing) => {
+        const propRe = new RegExp(`${cssProp}\\s*:[^;]*;?\\s*`);
+        const updated = propRe.test(existing)
+          ? existing.replace(propRe, `${cssProp}: ${change.value}; `)
+          : `${existing.trimEnd()} ${cssProp}: ${change.value};`;
+        return `style="${updated.trim()}"`;
+      });
+    } else {
+      newTag = best.full.replace(/>$/, ` style="${cssProp}: ${change.value};">`);
+    }
+
+    lines[foundIdx] = lines[foundIdx].replace(best.full, newTag);
+    fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  }
+
   private async applyTextChange(filePath: string, change: TextChange): Promise<void> {
+    if (filePath.endsWith('.html')) {
+      await this.applyTextChangeHtml(filePath, change);
+      return;
+    }
     const { project, sourceFile } = getOrCreateProject(filePath);
     const replaced = replaceTextContent(
       sourceFile,
@@ -98,6 +163,25 @@ export class FileWriter {
 
     await this.saveFile(filePath, sourceFile.getFullText());
     project.removeSourceFile(sourceFile);
+  }
+
+  private async applyTextChangeHtml(filePath: string, change: TextChange): Promise<void> {
+    const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+    const targetLine = change.line - 1;
+
+    for (let delta = 0; delta <= 10; delta++) {
+      for (const offset of delta === 0 ? [0] : [delta, -delta]) {
+        const idx = targetLine + offset;
+        if (idx < 0 || idx >= lines.length) continue;
+        if (lines[idx].includes(change.oldText)) {
+          lines[idx] = lines[idx].replace(change.oldText, change.newText);
+          fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+          return;
+        }
+      }
+    }
+
+    throw new Error(`Text "${change.oldText}" not found near ${change.file}:${change.line}`);
   }
 
   private async applyPropChange(filePath: string, change: PropChange): Promise<void> {
@@ -210,7 +294,7 @@ export class FileWriter {
       'node_modules', 'dist', '.next', '.git', 'build', '.cache',
       '.turbo', 'coverage', '.vibedit-backup', 'out', '.output',
     ]);
-    const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|json)$/;
+    const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|json|html)$/;
 
     // Collect all candidate files under projectRoot
     const candidates: string[] = [];
@@ -233,7 +317,7 @@ export class FileWriter {
       const content = fs.readFileSync(filePath, 'utf-8');
       if (!content.includes(change.oldText)) continue;
 
-      if (filePath.endsWith('.json')) {
+      if (filePath.endsWith('.json') || filePath.endsWith('.html')) {
         affected.push(filePath);
       } else {
         // Quick check via ts-morph that it's actually a StringLiteral
@@ -263,11 +347,16 @@ export class FileWriter {
       this.pushUndo(filePath, originalContent);
 
       if (filePath.endsWith('.json')) {
-        // Simple string replacement for JSON (preserves formatting better than parse/stringify)
+        // Wrap in quotes to match JSON string values
+        const escaped = change.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const updated = originalContent.replace(
-          new RegExp(`"${change.oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'),
+          new RegExp(`"${escaped}"`, 'g'),
           `"${change.newText}"`
         );
+        fs.writeFileSync(filePath, updated, 'utf-8');
+      } else if (filePath.endsWith('.html')) {
+        // Plain text replacement for HTML
+        const updated = originalContent.split(change.oldText).join(change.newText);
         fs.writeFileSync(filePath, updated, 'utf-8');
       } else {
         const { project, sourceFile } = getOrCreateProject(filePath);
