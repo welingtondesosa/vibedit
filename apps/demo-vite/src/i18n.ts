@@ -50,6 +50,8 @@ export interface Translations {
     runNote2: string;
     copy: string;
     copied: string;
+    updateTitle: string;
+    updateLabel: string;
     uninstallTitle: string;
     uninstallDesc: string;
   };
@@ -164,6 +166,8 @@ export const T: Record<Lang, Translations> = {
       runNote2: 'and look for the Vibedit button in the bottom-right corner of your app.',
       copy: 'copy',
       copied: '✓ copied',
+      updateTitle: 'Keep it up to date',
+      updateLabel: 'Update to the latest version',
       uninstallTitle: 'Want to remove it?',
       uninstallDesc:
         "Vibedit leaves no traces. To uninstall: run `npm uninstall @vibedit/vite` (or `@vibedit/next`), then remove the two lines you added to your config. That's it — no leftover files, no source code changes, no lock-in.",
@@ -295,6 +299,8 @@ export const T: Record<Lang, Translations> = {
       runNote2: 'y buscá el botón de Vibedit en la esquina inferior derecha de tu app.',
       copy: 'copiar',
       copied: '✓ copiado',
+      updateTitle: 'Mantenerlo actualizado',
+      updateLabel: 'Actualizar a la última versión',
       uninstallTitle: '¿Querés quitarlo?',
       uninstallDesc:
         'Vibedit no deja rastros. Para desinstalar: ejecutá `npm uninstall @vibedit/vite` (o `@vibedit/next`), y eliminá las dos líneas que agregaste en tu config. Listo — sin archivos residuales, sin cambios en el código fuente, sin lock-in.',
@@ -428,6 +434,8 @@ export const T: Record<Lang, Translations> = {
       runNote2: 'e procure o botão do Vibedit no canto inferior direito do seu app.',
       copy: 'copiar',
       copied: '✓ copiado',
+      updateTitle: 'Manter atualizado',
+      updateLabel: 'Atualizar para a última versão',
       uninstallTitle: 'Quer remover?',
       uninstallDesc:
         'O Vibedit não deixa rastros. Para desinstalar: execute `npm uninstall @vibedit/vite` (ou `@vibedit/next`), e remova as duas linhas que você adicionou no seu arquivo de config. Pronto — sem arquivos residuais, sem alterações no código fonte, sem lock-in.',

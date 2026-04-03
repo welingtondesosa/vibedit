@@ -7,9 +7,10 @@ interface InstallSectionProps {
   t: Translations['install'];
 }
 
-const CODE: Record<Framework, { label: string; blocks: { title: string; code: string }[] }> = {
+const CODE: Record<Framework, { label: string; pkg: string; blocks: { title: string; code: string }[] }> = {
   nextjs: {
     label: 'Next.js',
+    pkg: '@vibedit/next',
     blocks: [
       {
         title: 'Run this in your project root',
@@ -23,6 +24,7 @@ const CODE: Record<Framework, { label: string; blocks: { title: string; code: st
   },
   vite: {
     label: 'Vite',
+    pkg: '@vibedit/vite',
     blocks: [
       {
         title: 'Run this in your project root',
@@ -198,6 +200,38 @@ export function InstallSection({ t }: InstallSectionProps) {
         </code>{' '}
         {t.runNote2}
       </p>
+
+      {/* Update section */}
+      <div
+        style={{
+          marginTop: '48px',
+          padding: '24px 28px',
+          background: 'rgba(99,102,241,0.04)',
+          border: '1px solid rgba(99,102,241,0.15)',
+          borderRadius: '14px',
+        }}
+      >
+        <h3
+          style={{
+            fontSize: '15px',
+            fontWeight: 700,
+            color: '#475569',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span>⬆️</span>
+          {t.updateTitle}
+        </h3>
+        <CodeBlock
+          title={t.updateLabel}
+          code={`npm install ${CODE[fw].pkg}@latest`}
+          copyLabel={t.copy}
+          copiedLabel={t.copied}
+        />
+      </div>
 
       {/* Uninstall section */}
       <div
