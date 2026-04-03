@@ -14,7 +14,7 @@
 
 Vibedit injects a non-intrusive editing overlay into your React app during development. Activate it with the floating button, click any element, and a panel appears showing all its editable CSS properties. Changes are written directly to your source files using AST parsing (ts-morph) — not regex, not string replacement. Reload the page and your changes are still there.
 
-Works with **Next.js**, **Vite**, and any React-based framework.
+Works with **Next.js**, **Vite**, plain HTML, and any React-based framework.
 
 ---
 
@@ -54,7 +54,7 @@ This installs the package and adds the `vibedit()` plugin to your `vite.config.t
 
 2. **Overlay** — A React app bundled as an IIFE mounts inside a Shadow DOM host, so its styles never affect your app. The overlay connects to the Vibedit server via WebSocket.
 
-3. **Server** — A local Node.js server (port 4242) receives edit messages and writes changes back to source files using [ts-morph](https://ts-morph.com/) AST manipulation. Supports inline styles, text content, and i18n translation objects.
+3. **Server** — A local Node.js server (port 4242) receives edit messages and writes changes back to source files using [ts-morph](https://ts-morph.com/) AST manipulation. Supports inline styles, text content, i18n translation files, plain HTML, and breakpoint-specific CSS via generated `vibedit-responsive.css`.
 
 4. **Zero production impact** — The plugin uses `apply: 'serve'` (Vite) or `NODE_ENV === 'development'` (Next.js) to ensure nothing is injected into production builds.
 
@@ -66,10 +66,12 @@ This installs the package and adds the `vibedit()` plugin to your `vite.config.t
 |---|---|
 | Inline style properties (color, spacing, typography, etc.) | ✅ |
 | Text content (direct JSX text) | ✅ |
-| Text from i18n / translation objects | ✅ |
-| Undo history | ✅ |
+| Text from props / i18n translation files | ✅ |
+| Breakpoint-specific CSS (Mobile / Desktop) | ✅ |
+| Plain HTML projects (no JSX required) | ✅ |
+| Undo history (Ctrl+Z in browser) | ✅ |
 | Element reordering (drag & drop) | ✅ |
-| Tailwind classes | 🔜 v1.1 |
+| Tailwind classes | 🔜 planned |
 | CSS Modules | 🔜 planned |
 
 ---

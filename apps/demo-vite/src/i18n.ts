@@ -132,6 +132,12 @@ export const T: Record<Lang, Translations> = {
             'The editor lives in its own Shadow DOM. Its styles never leak into your app. Remove the plugin and your project is exactly as you left it.',
         },
         {
+          icon: '📱',
+          title: 'Mobile vs desktop — edit by breakpoint',
+          description:
+            'Switch between All, Mobile and Desktop before editing. Changes go into a @media rule — not inline, not global. Works in React and plain HTML.',
+        },
+        {
           icon: '🏠',
           title: 'No accounts. No cloud. No cost.',
           description:
@@ -243,6 +249,12 @@ export const T: Record<Lang, Translations> = {
           title: 'Invisible para tu app',
           description:
             'El editor vive en su propio Shadow DOM. Sus estilos nunca se filtran a tu app. Quitá el plugin y tu proyecto queda exactamente como lo dejaste.',
+        },
+        {
+          icon: '📱',
+          title: 'Mobile vs desktop — editá por breakpoint',
+          description:
+            'Cambiá entre All, Mobile y Desktop antes de editar. Los cambios van a una regla @media — no inline, no global. Funciona en React y HTML plano.',
         },
         {
           icon: '🏠',
@@ -358,6 +370,12 @@ export const T: Record<Lang, Translations> = {
           title: 'Invisível para seu app',
           description:
             'O editor vive em seu próprio Shadow DOM. Seus estilos nunca vazam para o seu app. Remova o plugin e seu projeto fica exatamente como você deixou.',
+        },
+        {
+          icon: '📱',
+          title: 'Mobile vs desktop — edite por breakpoint',
+          description:
+            'Alterne entre All, Mobile e Desktop antes de editar. As mudanças vão para uma regra @media — não inline, não global. Funciona em React e HTML puro.',
         },
         {
           icon: '🏠',
