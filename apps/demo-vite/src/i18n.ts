@@ -143,6 +143,18 @@ export const T: Record<Lang, Translations> = {
           description:
             'Everything runs on localhost via a local WebSocket server. No API keys, no telemetry, no subscriptions. Works offline, works on any project.',
         },
+        {
+          icon: '🌐',
+          title: 'Works with plain HTML too',
+          description:
+            'Not a React project? No problem. Vibedit also edits plain HTML files — inline styles, text, and breakpoint overrides, written directly to the source.',
+        },
+        {
+          icon: '↕️',
+          title: 'Drag to reorder elements',
+          description:
+            'Rearrange sibling elements by dragging them in the browser. The new order is written directly to your source file — no manual copy-paste needed.',
+        },
       ],
     },
     install: {
@@ -261,6 +273,18 @@ export const T: Record<Lang, Translations> = {
           title: 'Sin cuentas. Sin cloud. Sin costo.',
           description:
             'Todo corre en localhost via WebSocket local. Sin API keys, sin telemetría, sin suscripciones. Funciona offline, funciona en cualquier proyecto.',
+        },
+        {
+          icon: '🌐',
+          title: 'Funciona con HTML plano también',
+          description:
+            '¿No es un proyecto React? No hay problema. Vibedit también edita archivos HTML planos — estilos inline, texto y overrides por breakpoint, escritos directo al fuente.',
+        },
+        {
+          icon: '↕️',
+          title: 'Arrastrá para reordenar elementos',
+          description:
+            'Reorganizá elementos hermanos arrastrándolos en el navegador. El nuevo orden se escribe directo en tu archivo fuente — sin copy-paste manual.',
         },
       ],
     },
@@ -382,6 +406,18 @@ export const T: Record<Lang, Translations> = {
           title: 'Sem contas. Sem cloud. Sem custo.',
           description:
             'Tudo roda em localhost via WebSocket local. Sem API keys, sem telemetria, sem assinaturas. Funciona offline, funciona em qualquer projeto.',
+        },
+        {
+          icon: '🌐',
+          title: 'Funciona com HTML puro também',
+          description:
+            'Não é um projeto React? Sem problema. O Vibedit também edita arquivos HTML puros — estilos inline, texto e overrides por breakpoint, escritos direto no fonte.',
+        },
+        {
+          icon: '↕️',
+          title: 'Arraste para reordenar elementos',
+          description:
+            'Reorganize elementos irmãos arrastando-os no navegador. A nova ordem é escrita diretamente no arquivo fonte — sem copiar e colar manualmente.',
         },
       ],
     },

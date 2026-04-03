@@ -24,8 +24,6 @@ export function Card({ title, description, icon }: CardProps) {
           marginBottom: '16px',
           lineHeight: 1,
         }}
-        icon=""
-        title="Shadow DOM Isolation X"
       >
         {icon}
       </div>
@@ -37,7 +35,6 @@ export function Card({ title, description, icon }: CardProps) {
           marginBottom: '10px',
           letterSpacing: '-0.01em',
         }}
-        title="AST-powered Writes X"
       >
         {title}
       </h2>

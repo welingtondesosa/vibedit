@@ -79,7 +79,6 @@ export interface ServerResponse {
 
 export interface UndoEntry {
   id: string;
-  file: string;
-  originalContent: string;
+  files: Array<{ file: string; originalContent: string }>;
   timestamp: number;
 }

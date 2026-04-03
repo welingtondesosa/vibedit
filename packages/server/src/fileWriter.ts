@@ -52,7 +52,7 @@ export class FileWriter {
     // Save undo state before modifying
     const originalContent = fs.readFileSync(filePath, 'utf-8');
     this.backup.backup(filePath);
-    this.pushUndo(filePath, originalContent);
+    this.pushUndo([{ file: filePath, originalContent }]);
 
     switch (change.type) {
       case 'css':
@@ -144,6 +144,10 @@ export class FileWriter {
     const cssDir = fs.existsSync(srcDir) ? srcDir : this.config.projectRoot;
     const cssFile = path.join(cssDir, 'vibedit-responsive.css');
     const firstImport = !fs.existsSync(cssFile);
+
+    // Add CSS file to the undo entry atomically (JSX was already pushed by applyChange)
+    const originalCssContent = firstImport ? '' : fs.readFileSync(cssFile, 'utf-8');
+    this.appendToLastUndo(cssFile, originalCssContent);
 
     let cssContent = firstImport
       ? '/* Vibedit responsive overrides — generated automatically */\n\n'
@@ -427,17 +431,21 @@ export class FileWriter {
     fs.writeFileSync(filePath, finalContent, 'utf-8');
   }
 
-  private pushUndo(filePath: string, originalContent: string): void {
+  private appendToLastUndo(file: string, originalContent: string): void {
+    if (this.undoStack.length > 0) {
+      this.undoStack[this.undoStack.length - 1].files.push({ file, originalContent });
+    }
+  }
+
+  private pushUndo(files: Array<{ file: string; originalContent: string }>): void {
     const entry: UndoEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      file: filePath,
-      originalContent,
+      files,
       timestamp: Date.now(),
     };
 
     this.undoStack.push(entry);
 
-    // Trim to undoLimit
     if (this.undoStack.length > this.config.undoLimit) {
       this.undoStack.shift();
     }
@@ -445,11 +453,15 @@ export class FileWriter {
 
   private async undo(): Promise<void> {
     const entry = this.undoStack.pop();
-    if (!entry) {
-      throw new Error('Nothing to undo');
+    if (!entry) throw new Error('Nothing to undo');
+    for (const { file, originalContent } of entry.files) {
+      if (originalContent === '') {
+        // File was created during this change — delete it on undo
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } else {
+        fs.writeFileSync(file, originalContent, 'utf-8');
+      }
     }
-
-    fs.writeFileSync(entry.file, entry.originalContent, 'utf-8');
   }
 
   private async applyGlobalTextChange(change: GlobalTextChange): Promise<void> {
@@ -507,7 +519,7 @@ export class FileWriter {
     for (const filePath of affected) {
       const originalContent = fs.readFileSync(filePath, 'utf-8');
       this.backup.backup(filePath);
-      this.pushUndo(filePath, originalContent);
+      this.pushUndo([{ file: filePath, originalContent }]);
 
       if (filePath.endsWith('.json')) {
         // Wrap in quotes to match JSON string values

@@ -103,6 +103,39 @@ function patchDevScript(configFile) {
   log(`package.json dev script updated to use ${configFile}`);
 }
 
+// ── Create vibedit-responsive.css and inject import ───────────────────────────
+
+function ensureResponsiveCss() {
+  const srcDir = existsSync(join(cwd, 'src')) ? join(cwd, 'src') : cwd;
+  const cssFile = join(srcDir, 'vibedit-responsive.css');
+
+  if (!existsSync(cssFile)) {
+    writeFileSync(cssFile, '/* Vibedit responsive overrides — generated automatically */\n');
+    log('src/vibedit-responsive.css created');
+  } else {
+    warn('src/vibedit-responsive.css already exists — skipping');
+    return;
+  }
+
+  // Add import to entry point
+  const entryPoints = [
+    'src/main.tsx', 'src/main.ts', 'src/main.jsx', 'src/main.js',
+    'src/index.tsx', 'src/index.ts', 'src/index.jsx', 'src/index.js',
+  ];
+  const entry = entryPoints.find(f => existsSync(join(cwd, f)));
+  if (!entry) {
+    warn('Entry point not found — add this manually to your entry file:');
+    console.log("  import './vibedit-responsive.css';");
+    return;
+  }
+
+  const content = readFileSync(join(cwd, entry), 'utf8');
+  if (!content.includes('vibedit-responsive.css')) {
+    writeFileSync(join(cwd, entry), `import './vibedit-responsive.css';\n` + content);
+    log(`${entry} updated with vibedit-responsive.css import`);
+  }
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 const command = process.argv[2];
@@ -139,9 +172,10 @@ if (command === 'init') {
     }
   }
 
-  // 3. Patch config
+  // 3. Patch config and create CSS file
   title('Updating project files...');
   patchViteConfig();
+  ensureResponsiveCss();
 
   // 4. Done
   console.log(`
