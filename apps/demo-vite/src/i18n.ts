@@ -129,7 +129,7 @@ export const T: Record<Lang, Translations> = {
           icon: '🔒',
           title: 'Invisible to your app',
           description:
-            "The editor lives in its own Shadow DOM. Its styles never leak into your app. Remove the plugin and your project is exactly as you left it.",
+            'The editor lives in its own Shadow DOM. Its styles never leak into your app. Remove the plugin and your project is exactly as you left it.',
         },
         {
           icon: '🏠',
@@ -148,12 +148,11 @@ export const T: Record<Lang, Translations> = {
       copied: '✓ copied',
       uninstallTitle: 'Want to remove it?',
       uninstallDesc:
-        'Vibedit leaves no traces. To uninstall: run `npm uninstall @vibedit/vite` (or `@vibedit/next`), then remove the two lines you added to your config. That\'s it — no leftover files, no source code changes, no lock-in.',
+        "Vibedit leaves no traces. To uninstall: run `npm uninstall @vibedit/vite` (or `@vibedit/next`), then remove the two lines you added to your config. That's it — no leftover files, no source code changes, no lock-in.",
     },
     openSource: {
       title: 'Open source. What does that actually mean?',
-      subtitle:
-        'Three things worth understanding about how Vibedit is built and distributed.',
+      subtitle: 'Three things worth understanding about how Vibedit is built and distributed.',
       cards: [
         {
           icon: '📦',
@@ -165,7 +164,7 @@ export const T: Record<Lang, Translations> = {
           icon: '👁️',
           title: 'GitHub — the code is public',
           description:
-            'Every line of Vibedit\'s source is on GitHub. You can read it, inspect what it does to your files, fork it, or report a bug. Open source means the kitchen is open — nothing hidden.',
+            "Every line of Vibedit's source is on GitHub. You can read it, inspect what it does to your files, fork it, or report a bug. Open source means the kitchen is open — nothing hidden.",
         },
         {
           icon: '⚖️',
@@ -327,7 +326,8 @@ export const T: Record<Lang, Translations> = {
     },
     features: {
       title: 'Feito para o fluxo de trabalho real',
-      subtitle: 'Cada feature existe para eliminar um ponto de atrito específico na iteração de UI.',
+      subtitle:
+        'Cada feature existe para eliminar um ponto de atrito específico na iteração de UI.',
       items: [
         {
           icon: '🎨',
@@ -380,8 +380,7 @@ export const T: Record<Lang, Translations> = {
     },
     openSource: {
       title: 'Open source? O que isso significa de verdade?',
-      subtitle:
-        'Três coisas que vale entender sobre como o Vibedit é construído e distribuído.',
+      subtitle: 'Três coisas que vale entender sobre como o Vibedit é construído e distribuído.',
       cards: [
         {
           icon: '📦',
