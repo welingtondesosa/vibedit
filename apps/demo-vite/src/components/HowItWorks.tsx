@@ -46,6 +46,7 @@ export function HowItWorks({ t }: HowItWorksProps) {
               border: '1px solid #1e1e35',
               borderRadius: '16px',
               padding: '32px 28px',
+              backgroundColor: '#0d0d18',
             }}
           >
             <div
