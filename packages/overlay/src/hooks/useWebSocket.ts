@@ -7,10 +7,13 @@ interface WebSocketHook {
 
 const VIBEDIT_WS_PORT = (window as unknown as { __VIBEDIT_PORT__?: number }).__VIBEDIT_PORT__ ?? 4242;
 
-export function useWebSocket(): WebSocketHook {
+export function useWebSocket(onPush?: (data: Record<string, unknown>) => void): WebSocketHook {
   const wsRef = useRef<WebSocket | null>(null);
   const pendingRef = useRef<Map<string, (response: { success: boolean; error?: string }) => void>>(new Map());
+  const onPushRef = useRef(onPush);
   const [connected, setConnected] = useState(false);
+
+  useEffect(() => { onPushRef.current = onPush; }, [onPush]);
 
   useEffect(() => {
     const ws = new WebSocket(`ws://127.0.0.1:${VIBEDIT_WS_PORT}`);
@@ -22,9 +25,14 @@ export function useWebSocket(): WebSocketHook {
     ws.onmessage = (event: MessageEvent<string>) => {
       try {
         const data = JSON.parse(event.data) as { id?: string; success?: boolean; error?: string; type?: string };
-        if (data.type === 'ready') return;
 
-        if (data.id && pendingRef.current.has(data.id)) {
+        // Server push (no id) — dispatch to callback
+        if (!data.id) {
+          if (data.type !== 'ready') onPushRef.current?.(data as Record<string, unknown>);
+          return;
+        }
+
+        if (pendingRef.current.has(data.id)) {
           const resolve = pendingRef.current.get(data.id)!;
           pendingRef.current.delete(data.id);
           resolve({ success: data.success ?? false, error: data.error });

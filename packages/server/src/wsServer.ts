@@ -1,14 +1,17 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { FileWriter } from './fileWriter.js';
+import { readTailwindTokens } from './tailwindReader.js';
 import type { ServerMessage, ServerResponse, VibeditConfig } from './types.js';
 
 export class VibeditServer {
   private wss: WebSocketServer;
   private fileWriter: FileWriter;
+  private twTokens: Record<string, string>;
 
   constructor(config: VibeditConfig) {
     this.fileWriter = new FileWriter(config);
+    this.twTokens = readTailwindTokens(config.projectRoot);
 
     this.wss = new WebSocketServer({
       port: config.port,
@@ -66,8 +69,9 @@ export class VibeditServer {
       console.error('[Vibedit] WebSocket error:', err.message);
     });
 
-    // Send ready signal
+    // Send ready signal + design tokens
     ws.send(JSON.stringify({ type: 'ready', version: '0.1.0' }));
+    ws.send(JSON.stringify({ type: 'config', twTokens: this.twTokens }));
   }
 
   close(): void {

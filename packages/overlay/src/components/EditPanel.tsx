@@ -3,7 +3,7 @@ import type { SelectedElement } from '../hooks/useElementPicker';
 import type { ComponentProp } from '../utils/reactFiber';
 import { toKebabCase } from '../utils/cssParser';
 import { getRelativePath } from '../utils/domHelpers';
-import { parseColor, rgbToHex } from '../utils/cssParser';
+import { parseColor, rgbToHex, wcagContrast, wcagLevel } from '../utils/cssParser';
 import { findPropSource, getComponentProps } from '../utils/reactFiber';
 
 // ── PRD design tokens (dark) ─────────────────────────────────────────────────
@@ -170,6 +170,8 @@ interface RowProps {
   value: string;
   saving: boolean;
   onChange: (property: string, value: string) => void;
+  contrastWith?: string;
+  twToken?: string;
 }
 
 function SliderRow({ def, value, saving, onChange }: RowProps): React.ReactElement {
@@ -227,13 +229,17 @@ function SliderRow({ def, value, saving, onChange }: RowProps): React.ReactEleme
 
 // ── Color row ────────────────────────────────────────────────────────────────
 
-function ColorRow({ def, value, saving, onChange }: RowProps): React.ReactElement {
+function ColorRow({ def, value, saving, onChange, contrastWith, twToken }: RowProps): React.ReactElement {
   const [local, setLocal] = useState(() => cssColorToHex(value));
 
   useEffect(() => { setLocal(cssColorToHex(value)); }, [value]);
 
+  const ratio = contrastWith ? wcagContrast(local, contrastWith) : null;
+  const level = ratio !== null ? wcagLevel(ratio) : null;
+  const levelColor = level === 'AAA' ? '#4ade80' : level === 'AA' ? '#86efac' : level === 'AA Large' ? '#fbbf24' : '#f87171';
+
   return (
-    <div style={{ ...rowStyle, opacity: saving ? 0.5 : 1 }}>
+    <div style={{ ...rowStyle, opacity: saving ? 0.5 : 1, flexWrap: 'wrap', gap: '4px' }}>
       <div style={labelStyle} title={def.name}>{def.name}</div>
       <input
         type="color"
@@ -259,6 +265,24 @@ function ColorRow({ def, value, saving, onChange }: RowProps): React.ReactElemen
           padding: '3px 6px', minWidth: 0, fontFamily: 'ui-monospace, monospace',
         }}
       />
+      {twToken && (
+        <span style={{
+          fontSize: '10px', color: '#a5b4fc', background: 'rgba(99,102,241,0.12)',
+          border: '1px solid rgba(99,102,241,0.25)', borderRadius: '4px',
+          padding: '1px 5px', fontFamily: 'ui-monospace, monospace', flexShrink: 0,
+        }}>
+          {twToken}
+        </span>
+      )}
+      {level && ratio !== null && (
+        <span title={`Contrast ratio: ${ratio.toFixed(2)}:1`} style={{
+          fontSize: '10px', color: levelColor,
+          background: 'rgba(0,0,0,0.3)', border: `1px solid ${levelColor}40`,
+          borderRadius: '4px', padding: '1px 5px', flexShrink: 0, cursor: 'default',
+        }}>
+          {ratio.toFixed(1)}:1 {level}
+        </span>
+      )}
     </div>
   );
 }
@@ -327,9 +351,11 @@ interface SectionProps {
   onChange: (property: string, value: string) => void;
   onRevert: (groupLabel: string) => void;
   originalStyles: Record<string, string>;
+  allStyles: Record<string, string>;
+  twTokens: Record<string, string>;
 }
 
-function CssSection({ group, styles, saving, onChange, onRevert, originalStyles }: SectionProps): React.ReactElement | null {
+function CssSection({ group, styles, saving, onChange, onRevert, originalStyles, allStyles, twTokens }: SectionProps): React.ReactElement | null {
   const [open, setOpen] = useState(true);
   const visible = group.properties.filter((p) => styles[p.name] !== undefined);
   if (visible.length === 0) return null;
@@ -366,15 +392,23 @@ function CssSection({ group, styles, saving, onChange, onRevert, originalStyles 
       </div>
       {open && (
         <div style={{ paddingTop: '4px', paddingBottom: '6px' }}>
-          {visible.map((def) => (
+          {visible.map((def) => {
+            let contrastWith: string | undefined;
+            if (def.name === 'color') contrastWith = allStyles['background-color'] || '#ffffff';
+            if (def.name === 'background-color') contrastWith = allStyles['color'] || '#000000';
+            if (def.name === 'border-color') contrastWith = allStyles['background-color'] || '#ffffff';
+            return (
             <PropertyRow
               key={def.name}
               def={def}
               value={styles[def.name] ?? ''}
               saving={saving === def.name}
               onChange={onChange}
+              contrastWith={contrastWith}
+              twToken={def.type === 'color' ? twTokens[cssColorToHex(styles[def.name] ?? '')] : undefined}
             />
-          ))}
+          );
+          })}
         </div>
       )}
     </div>
@@ -511,6 +545,7 @@ interface EditPanelProps {
   send: (message: unknown) => Promise<{ success: boolean; error?: string }>;
   onClose: () => void;
   onToast: (message: string, type: 'success' | 'error') => void;
+  twTokens?: Record<string, string>;
 }
 
 type Breakpoint = 'all' | 'mobile' | 'desktop';
@@ -521,7 +556,7 @@ const BREAKPOINTS: { key: Breakpoint; label: string; icon: string }[] = [
   { key: 'desktop', label: 'Desktop', icon: '🖥' },
 ];
 
-export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps): React.ReactElement {
+export function EditPanel({ selected, send, onClose, onToast, twTokens = {} }: EditPanelProps): React.ReactElement {
   const [localStyles, setLocalStyles] = useState<Record<string, string>>(selected.styles);
   const [originalStyles] = useState<Record<string, string>>(selected.styles);
   const [savingCss, setSavingCss] = useState<string | null>(null);
@@ -969,6 +1004,8 @@ export function EditPanel({ selected, send, onClose, onToast }: EditPanelProps):
             onChange={handleCssChange}
             onRevert={handleRevert}
             originalStyles={originalStyles}
+            allStyles={localStyles}
+            twTokens={twTokens}
           />
         ))}
       </div>

@@ -1,6 +1,6 @@
 {
   "name": "@vibedit/next",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Visual editing overlay for Next.js — edit styles live in your browser",
   "type": "module",
   "main": "./dist/index.js",

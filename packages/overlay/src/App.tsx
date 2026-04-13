@@ -34,7 +34,15 @@ export function App(): React.ReactElement {
   });
   const [selected, setSelected] = useState<SelectedElement | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const { send, connected } = useWebSocket();
+  const [twTokens, setTwTokens] = useState<Record<string, string>>({});
+
+  const handlePush = useCallback((data: Record<string, unknown>) => {
+    if (data.type === 'config' && data.twTokens) {
+      setTwTokens(data.twTokens as Record<string, string>);
+    }
+  }, []);
+
+  const { send, connected } = useWebSocket(handlePush);
   const { undo } = useUndo({ send });
 
   const addToast = useCallback((message: string, type: 'success' | 'error') => {
@@ -158,6 +166,7 @@ export function App(): React.ReactElement {
           send={send}
           onClose={() => setSelected(null)}
           onToast={addToast}
+          twTokens={twTokens}
         />
       )}
       <Toast toasts={toasts} />
