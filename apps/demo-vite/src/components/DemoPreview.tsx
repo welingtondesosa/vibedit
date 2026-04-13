@@ -43,14 +43,24 @@ export function DemoPreview() {
           </span>
         </div>
 
-        <img
-          src="/vibedit-demo.gif"
-          alt="Vibedit in action — click any element to edit it visually"
+        {/* Placeholder while GIF is hosted externally */}
+        <div
           style={{
-            width: '100%',
-            display: 'block',
+            height: '420px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
+            background: '#080810',
+            color: '#1e293b',
           }}
-        />
+        >
+          <span style={{ fontSize: '48px' }}>▶</span>
+          <p style={{ fontSize: '14px', color: '#334155', margin: 0 }}>
+            Demo coming soon
+          </p>
+        </div>
       </div>
     </section>
   );
