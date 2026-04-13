@@ -43,24 +43,14 @@ export function DemoPreview() {
           </span>
         </div>
 
-        {/* Placeholder while GIF is hosted externally */}
-        <div
-          style={{
-            height: '420px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '16px',
-            background: '#080810',
-            color: '#1e293b',
-          }}
-        >
-          <span style={{ fontSize: '48px' }}>▶</span>
-          <p style={{ fontSize: '14px', color: '#334155', margin: 0 }}>
-            Demo coming soon
-          </p>
-        </div>
+        <video
+          src="/vibedit-demo.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ width: '100%', display: 'block' }}
+        />
       </div>
     </section>
   );
