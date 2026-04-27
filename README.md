@@ -1,8 +1,8 @@
 # Vibedit
 
-> Visual editing overlay for React apps — click any element, edit its styles and text, watch your source files update live.
+> Visual editing overlay for React apps — click any element, edit its styles and text, watch your source files update live. Now with local AI powered by Ollama.
 
-**No AI. No cloud. No accounts. Everything runs locally.**
+**100% local. No cloud. No accounts. Free AI via Ollama.**
 
 [![npm version](https://img.shields.io/npm/v/%40vibedit%2Fnext?color=%236366f1&label=%40vibedit%2Fnext)](https://www.npmjs.com/package/@vibedit/next)
 [![npm version](https://img.shields.io/npm/v/%40vibedit%2Fvite?color=%236366f1&label=%40vibedit%2Fvite)](https://www.npmjs.com/package/@vibedit/vite)
@@ -71,8 +71,45 @@ This installs the package and adds the `vibedit()` plugin to your `vite.config.t
 | Plain HTML projects (no JSX required) | ✅ |
 | Undo history (Ctrl+Z in browser) | ✅ |
 | Element reordering (drag & drop) | ✅ |
-| Tailwind classes | 🔜 planned |
+| AI-powered suggestions via Ollama (local, free) | ✅ |
+| Copy as code (CSS / Tailwind / React inline) | ✅ |
+| Box model visualizer | ✅ |
+| Color history (last 8 colors, persisted) | ✅ |
+| WCAG contrast checker | ✅ |
+| Tailwind token display | ✅ |
+| Tailwind class writing | 🔜 planned |
 | CSS Modules | 🔜 planned |
+
+---
+
+## AI Assistant (Ollama)
+
+Vibedit includes a built-in AI assistant that runs **100% locally** using [Ollama](https://ollama.com). No cloud, no API keys, no cost per request.
+
+### Setup
+
+```bash
+# 1. Install Ollama (one time)
+# Download from https://ollama.com
+
+# 2. Pull a model
+ollama pull llama3
+```
+
+### Usage
+
+1. Select any element with Vibedit
+2. At the top of the edit panel, find the ✨ field
+3. Type a natural language instruction:
+   - `"make it more modern"`
+   - `"add shadow and round the corners"`
+   - `"increase contrast and make text bigger"`
+4. Click **Ask** — the AI returns CSS suggestions
+5. Apply them individually (✓) or all at once (**Apply all**)
+
+Every applied suggestion goes through the same pipeline as manual edits — written to your source files via AST.
+
+> **No Ollama?** The panel shows a link to install it. Vibedit works perfectly without AI — it's an optional power feature.
 
 ---
 

@@ -70,7 +70,7 @@ export const T: Record<Lang, Translations> = {
     hero: {
       badge: 'Open Source · Free · MIT License',
       headline: 'Stop wasting AI credits on visual tweaks.',
-      localBadge: '100% local · No accounts · No cloud · No credits',
+      localBadge: '100% local · Free AI via Ollama · No cloud · No credits',
       sub: 'You know the loop: open DevTools, guess the class name, hunt the file, edit, save, check. Vibedit replaces that loop — click any element, edit from a panel, and watch your source files update instantly.',
       copy: 'copy',
       copied: '✓ copied',
@@ -128,10 +128,10 @@ export const T: Record<Lang, Translations> = {
             'Changed the wrong thing? Every edit is tracked. Hit Ctrl+Z in the browser to undo, one step at a time, without touching the terminal.',
         },
         {
-          icon: '🔒',
-          title: 'Invisible to your app',
+          icon: '✨',
+          title: 'AI-powered editing — local and free',
           description:
-            'The editor lives in its own Shadow DOM. Its styles never leak into your app. Remove the plugin and your project is exactly as you left it.',
+            'Type "make it more modern" and get CSS suggestions from a local AI (Ollama). No cloud, no API keys, no credits. Apply suggestions with one click — changes go straight to your files.',
         },
         {
           icon: '📱',
@@ -203,7 +203,7 @@ export const T: Record<Lang, Translations> = {
     hero: {
       badge: 'Open Source · Gratis · Licencia MIT',
       headline: 'Dejá de gastar créditos de IA en ajustes visuales.',
-      localBadge: '100% local · Sin cuentas · Sin cloud · Sin créditos',
+      localBadge: '100% local · IA gratis via Ollama · Sin cloud · Sin créditos',
       sub: 'Conocés el loop: DevTools, adivinar el nombre de la clase, buscar el archivo, editar, guardar, revisar. Vibedit reemplaza ese loop — hacé clic en cualquier elemento, editá desde el panel, y mirá cómo tus archivos fuente se actualizan al instante.',
       copy: 'copiar',
       copied: '✓ copiado',
@@ -262,9 +262,9 @@ export const T: Record<Lang, Translations> = {
         },
         {
           icon: '🔒',
-          title: 'Invisible para tu app',
+          title: 'Edición con IA — local y gratis',
           description:
-            'El editor vive en su propio Shadow DOM. Sus estilos nunca se filtran a tu app. Quitá el plugin y tu proyecto queda exactamente como lo dejaste.',
+            'Escribí "hacelo más moderno" y recibí sugerencias CSS de una IA local (Ollama). Sin cloud, sin API keys, sin créditos. Aplicá sugerencias con un click — los cambios van directo a tus archivos.',
         },
         {
           icon: '📱',
@@ -337,7 +337,7 @@ export const T: Record<Lang, Translations> = {
     hero: {
       badge: 'Open Source · Gratuito · Licença MIT',
       headline: 'Pare de gastar créditos de IA em ajustes visuais.',
-      localBadge: '100% local · Sem contas · Sem cloud · Sem créditos',
+      localBadge: '100% local · IA grátis via Ollama · Sem cloud · Sem créditos',
       sub: 'Você conhece o loop: DevTools, adivinhar o nome da classe, procurar o arquivo, editar, salvar, verificar. O Vibedit substitui esse loop — clique em qualquer elemento, edite pelo painel e veja seus arquivos fonte atualizarem na hora.',
       copy: 'copiar',
       copied: '✓ copiado',
@@ -396,10 +396,10 @@ export const T: Record<Lang, Translations> = {
             'Mudou a coisa errada? Cada edição é rastreada. Ctrl+Z no navegador para desfazer, passo a passo, sem tocar no terminal.',
         },
         {
-          icon: '🔒',
-          title: 'Invisível para seu app',
+          icon: '✨',
+          title: 'Edição com IA — local e grátis',
           description:
-            'O editor vive em seu próprio Shadow DOM. Seus estilos nunca vazam para o seu app. Remova o plugin e seu projeto fica exatamente como você deixou.',
+            'Digite "deixe mais moderno" e receba sugestões CSS de uma IA local (Ollama). Sem cloud, sem API keys, sem créditos. Aplique sugestões com um clique — as mudanças vão direto pros seus arquivos.',
         },
         {
           icon: '📱',
