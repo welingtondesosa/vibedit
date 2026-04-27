@@ -4,6 +4,7 @@ import type { ComponentProp } from '../utils/reactFiber';
 import { toKebabCase } from '../utils/cssParser';
 import { getRelativePath } from '../utils/domHelpers';
 import { parseColor, rgbToHex, wcagContrast, wcagLevel } from '../utils/cssParser';
+import { formatAsCSS, formatAsReact, formatAsTailwind } from '../utils/copyAsCode';
 import { findPropSource, getComponentProps } from '../utils/reactFiber';
 
 // ── PRD design tokens (dark) ─────────────────────────────────────────────────
@@ -229,10 +230,33 @@ function SliderRow({ def, value, saving, onChange }: RowProps): React.ReactEleme
 
 // ── Color row ────────────────────────────────────────────────────────────────
 
+const COLOR_HISTORY_KEY = 'vibedit-color-history';
+const MAX_COLORS = 8;
+
+function getColorHistory(): string[] {
+  try { return JSON.parse(localStorage.getItem(COLOR_HISTORY_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function pushColorHistory(hex: string): string[] {
+  const h = getColorHistory().filter((c) => c !== hex);
+  h.unshift(hex);
+  const result = h.slice(0, MAX_COLORS);
+  localStorage.setItem(COLOR_HISTORY_KEY, JSON.stringify(result));
+  return result;
+}
+
 function ColorRow({ def, value, saving, onChange, contrastWith, twToken }: RowProps): React.ReactElement {
   const [local, setLocal] = useState(() => cssColorToHex(value));
+  const [history, setHistory] = useState<string[]>(() => getColorHistory());
 
   useEffect(() => { setLocal(cssColorToHex(value)); }, [value]);
+
+  const applyColor = (hex: string): void => {
+    setLocal(hex);
+    onChange(def.name, hex);
+    setHistory(pushColorHistory(hex));
+  };
 
   const ratio = contrastWith ? wcagContrast(local, contrastWith) : null;
   const level = ratio !== null ? wcagLevel(ratio) : null;
@@ -244,7 +268,7 @@ function ColorRow({ def, value, saving, onChange, contrastWith, twToken }: RowPr
       <input
         type="color"
         value={local}
-        onChange={(e) => { setLocal(e.target.value); onChange(def.name, e.target.value); }}
+        onChange={(e) => applyColor(e.target.value)}
         style={{
           width: '28px', height: '24px', padding: '0 2px', flexShrink: 0,
           border: `1px solid ${T.border}`, borderRadius: '4px',
@@ -257,7 +281,10 @@ function ColorRow({ def, value, saving, onChange, contrastWith, twToken }: RowPr
         maxLength={7}
         onChange={(e) => {
           setLocal(e.target.value);
-          if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) onChange(def.name, e.target.value);
+          if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+            onChange(def.name, e.target.value);
+            setHistory(pushColorHistory(e.target.value));
+          }
         }}
         style={{
           flex: 1, background: T.surface2, border: `1px solid ${T.border}`,
@@ -282,6 +309,22 @@ function ColorRow({ def, value, saving, onChange, contrastWith, twToken }: RowPr
         }}>
           {ratio.toFixed(1)}:1 {level}
         </span>
+      )}
+      {/* Color history swatches */}
+      {history.length > 0 && (
+        <div style={{ width: '100%', display: 'flex', gap: '3px', paddingLeft: '110px', marginTop: '1px' }}>
+          {history.map((hex) => (
+            <button
+              key={hex}
+              onClick={() => applyColor(hex)}
+              title={hex}
+              style={{
+                width: '16px', height: '16px', borderRadius: '3px', border: hex === local ? '2px solid #a5b4fc' : `1px solid ${T.border}`,
+                background: hex, cursor: 'pointer', padding: 0, flexShrink: 0,
+              }}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -411,6 +454,145 @@ function CssSection({ group, styles, saving, onChange, onRevert, originalStyles,
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Box model visualizer ────────────────────────────────────────────────────
+
+function BoxModel({ styles }: { styles: Record<string, string> }): React.ReactElement {
+  const [open, setOpen] = useState(false);
+
+  const px = (v: string | undefined): number => parseFloat(v?.replace('px', '') ?? '0') || 0;
+  const show = (v: string | undefined): string => {
+    const n = px(v);
+    return n === 0 ? '-' : `${n}`;
+  };
+
+  const mt = show(styles['margin-top']), mr = show(styles['margin-right']);
+  const mb = show(styles['margin-bottom']), ml = show(styles['margin-left']);
+  const pt = show(styles['padding-top']), pr = show(styles['padding-right']);
+  const pb = show(styles['padding-bottom']), pl = show(styles['padding-left']);
+  const w = Math.round(px(styles['width'] ?? '0'));
+  const h = Math.round(px(styles['height'] ?? '0'));
+
+  const numStyle: React.CSSProperties = {
+    fontSize: '9px', fontFamily: 'ui-monospace, monospace',
+    minWidth: '18px', textAlign: 'center',
+  };
+
+  return (
+    <div style={{ borderBottom: `1px solid ${T.border}` }}>
+      <div
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '9px 14px', cursor: 'pointer', userSelect: 'none',
+          background: T.surface2,
+        }}
+      >
+        <span style={{ color: T.textSecondary, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Box Model
+        </span>
+        <span style={{ color: T.textSecondary, fontSize: '11px', transition: 'transform 0.15s', transform: open ? 'none' : 'rotate(-90deg)', display: 'inline-block' }}>▾</span>
+      </div>
+      {open && (
+        <div style={{ padding: '10px 14px', display: 'flex', justifyContent: 'center' }}>
+          {/* Margin layer */}
+          <div style={{
+            border: '1px dashed rgba(251,191,36,0.4)', borderRadius: '4px',
+            padding: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+            background: 'rgba(251,191,36,0.04)', position: 'relative', width: '100%', maxWidth: '240px',
+          }}>
+            <span style={{ fontSize: '8px', color: '#fbbf24', position: 'absolute', top: '-8px', left: '4px' }}>margin</span>
+            <span style={{ ...numStyle, color: '#fbbf24' }}>{mt}</span>
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <span style={{ ...numStyle, color: '#fbbf24' }}>{ml}</span>
+              {/* Padding layer */}
+              <div style={{
+                flex: 1, border: '1px dashed rgba(74,222,128,0.4)', borderRadius: '3px',
+                padding: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center',
+                background: 'rgba(74,222,128,0.04)', position: 'relative', margin: '2px',
+              }}>
+                <span style={{ fontSize: '8px', color: '#4ade80', position: 'absolute', top: '-8px', left: '4px' }}>padding</span>
+                <span style={{ ...numStyle, color: '#4ade80' }}>{pt}</span>
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <span style={{ ...numStyle, color: '#4ade80' }}>{pl}</span>
+                  {/* Content */}
+                  <div style={{
+                    flex: 1, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
+                    borderRadius: '2px', textAlign: 'center', padding: '6px 2px', margin: '2px',
+                  }}>
+                    <span style={{ fontSize: '10px', color: '#a5b4fc', fontFamily: 'ui-monospace, monospace' }}>
+                      {w} × {h}
+                    </span>
+                  </div>
+                  <span style={{ ...numStyle, color: '#4ade80' }}>{pr}</span>
+                </div>
+                <span style={{ ...numStyle, color: '#4ade80' }}>{pb}</span>
+              </div>
+              <span style={{ ...numStyle, color: '#fbbf24' }}>{mr}</span>
+            </div>
+            <span style={{ ...numStyle, color: '#fbbf24' }}>{mb}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Copy as code bar ────────────────────────────────────────────────────────
+
+type CopyFormat = 'css' | 'tailwind' | 'react';
+
+function CopyBar({ styles, twTokens, onToast }: {
+  styles: Record<string, string>;
+  twTokens: Record<string, string>;
+  onToast: (message: string, type: 'success' | 'error') => void;
+}): React.ReactElement {
+  const [lastCopied, setLastCopied] = useState<CopyFormat | null>(null);
+
+  const handleCopy = (format: CopyFormat): void => {
+    let text = '';
+    switch (format) {
+      case 'css': text = formatAsCSS(styles); break;
+      case 'tailwind': text = formatAsTailwind(styles, twTokens); break;
+      case 'react': text = formatAsReact(styles); break;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      setLastCopied(format);
+      onToast(`Copied as ${format.toUpperCase()}`, 'success');
+      setTimeout(() => setLastCopied(null), 2000);
+    });
+  };
+
+  const btnStyle = (fmt: CopyFormat): React.CSSProperties => ({
+    flex: 1, padding: '4px 0', borderRadius: '5px', border: 'none',
+    cursor: 'pointer', fontSize: '10px', fontWeight: 600,
+    fontFamily: 'ui-monospace, monospace', letterSpacing: '0.03em',
+    background: lastCopied === fmt ? 'rgba(74,222,128,0.15)' : T.surface,
+    color: lastCopied === fmt ? '#4ade80' : T.textSecondary,
+    transition: 'all 0.15s',
+  });
+
+  return (
+    <div style={{
+      borderBottom: `1px solid ${T.border}`, padding: '6px 14px',
+      display: 'flex', alignItems: 'center', gap: '6px',
+    }}>
+      <span style={{
+        color: T.textSecondary, fontSize: '10px', fontWeight: 700,
+        textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '2px', flexShrink: 0,
+      }}>Copy</span>
+      <button onClick={() => handleCopy('css')} style={btnStyle('css')}>
+        {lastCopied === 'css' ? '✓ CSS' : 'CSS'}
+      </button>
+      <button onClick={() => handleCopy('tailwind')} style={btnStyle('tailwind')}>
+        {lastCopied === 'tailwind' ? '✓ TW' : 'Tailwind'}
+      </button>
+      <button onClick={() => handleCopy('react')} style={btnStyle('react')}>
+        {lastCopied === 'react' ? '✓ React' : 'React'}
+      </button>
     </div>
   );
 }
@@ -993,6 +1175,12 @@ export function EditPanel({ selected, send, onClose, onToast, twTokens = {} }: E
             </button>
           ))}
         </div>
+
+        {/* Box model */}
+        <BoxModel styles={localStyles} />
+
+        {/* Copy as code */}
+        <CopyBar styles={localStyles} twTokens={twTokens} onToast={onToast} />
 
         {/* CSS sections */}
         {GROUPS.map((group) => (
