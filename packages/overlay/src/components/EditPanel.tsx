@@ -597,6 +597,166 @@ function CopyBar({ styles, twTokens, onToast }: {
   );
 }
 
+// ── AI Bar ──────────────────────────────────────────────────────────────────
+
+interface AiBarProps {
+  available: boolean;
+  styles: Record<string, string>;
+  elementTag: string;
+  componentName?: string;
+  send: (message: unknown) => Promise<{ success: boolean; error?: string; data?: { aiSuggestions?: AiSuggestion[] } }>;
+  onApplySuggestion: (property: string, value: string) => void;
+  onToast: (message: string, type: 'success' | 'error') => void;
+}
+
+function AiBar({ available, styles, elementTag, componentName, send, onApplySuggestion, onToast }: AiBarProps): React.ReactElement {
+  const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
+
+  const handleAsk = async (): Promise<void> => {
+    if (!prompt.trim() || loading) return;
+    setLoading(true);
+    setSuggestions([]);
+
+    const result = await send({
+      change: {
+        type: 'ai',
+        prompt: prompt.trim(),
+        currentStyles: styles,
+        elementTag,
+        componentName,
+      },
+    });
+
+    setLoading(false);
+
+    if (result.success && result.data?.aiSuggestions) {
+      setSuggestions(result.data.aiSuggestions);
+      onToast(`AI: ${result.data.aiSuggestions.length} suggestions`, 'success');
+    } else {
+      onToast(result.error ?? 'AI request failed', 'error');
+    }
+  };
+
+  const handleApplyAll = (): void => {
+    for (const s of suggestions) {
+      onApplySuggestion(s.property, s.value);
+    }
+    onToast(`Applied ${suggestions.length} changes`, 'success');
+    setSuggestions([]);
+    setPrompt('');
+  };
+
+  if (!available) {
+    return (
+      <div style={{
+        borderBottom: `1px solid ${T.border}`, padding: '8px 14px',
+        display: 'flex', alignItems: 'center', gap: '6px',
+      }}>
+        <span style={{ fontSize: '13px' }}>✨</span>
+        <span style={{ fontSize: '10px', color: T.textSecondary }}>
+          AI: Install <a href="https://ollama.com" target="_blank" rel="noopener noreferrer"
+            style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Ollama</a> then run{' '}
+          <code style={{ color: '#a5b4fc', fontFamily: 'ui-monospace, monospace', fontSize: '10px' }}>ollama pull llama3</code>
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ borderBottom: `1px solid ${T.border}` }}>
+      <div style={{ padding: '8px 14px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+        <span style={{ fontSize: '13px', flexShrink: 0 }}>✨</span>
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') void handleAsk(); }}
+          placeholder="Ask AI: &quot;make it more modern&quot;"
+          disabled={loading}
+          style={{
+            flex: 1, background: T.surface2, border: `1px solid ${T.border}`,
+            borderRadius: '6px', color: T.textPrimary, fontSize: '12px',
+            padding: '5px 8px', minWidth: 0, fontFamily: 'inherit',
+            opacity: loading ? 0.5 : 1,
+          }}
+        />
+        <button
+          onClick={() => void handleAsk()}
+          disabled={loading || !prompt.trim()}
+          style={{
+            background: prompt.trim() ? T.accent : T.surface2,
+            border: `1px solid ${prompt.trim() ? T.accent : T.border}`,
+            borderRadius: '6px', color: '#fff', fontSize: '11px',
+            padding: '5px 10px', cursor: prompt.trim() ? 'pointer' : 'default',
+            fontFamily: 'inherit', flexShrink: 0, fontWeight: 600,
+            opacity: loading ? 0.5 : 1,
+          }}
+        >
+          {loading ? '...' : 'Ask'}
+        </button>
+      </div>
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div style={{ padding: '0 14px 10px' }}>
+          <div style={{
+            background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)',
+            borderRadius: '8px', padding: '8px 10px',
+          }}>
+            {suggestions.map((s, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '3px 0', fontSize: '11px',
+              }}>
+                <span style={{ color: '#89B4FA', fontFamily: 'ui-monospace, monospace', flex: '0 0 120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {s.property}
+                </span>
+                <span style={{ color: T.textPrimary, fontFamily: 'ui-monospace, monospace', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {s.value}
+                </span>
+                <button
+                  onClick={() => { onApplySuggestion(s.property, s.value); onToast(`${s.property}: ${s.value}`, 'success'); }}
+                  style={{
+                    background: 'none', border: `1px solid ${T.border}`, borderRadius: '4px',
+                    color: '#4ade80', fontSize: '10px', padding: '1px 6px', cursor: 'pointer', flexShrink: 0,
+                  }}
+                >
+                  ✓
+                </button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+              <button
+                onClick={handleApplyAll}
+                style={{
+                  flex: 1, padding: '5px 0', borderRadius: '6px',
+                  background: T.accent, border: `1px solid ${T.accent}`,
+                  color: '#fff', fontSize: '11px', cursor: 'pointer',
+                  fontWeight: 600, fontFamily: 'inherit',
+                }}
+              >
+                Apply all ({suggestions.length})
+              </button>
+              <button
+                onClick={() => setSuggestions([])}
+                style={{
+                  padding: '5px 10px', borderRadius: '6px',
+                  background: 'none', border: `1px solid ${T.border}`,
+                  color: T.textSecondary, fontSize: '11px', cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Props Section ────────────────────────────────────────────────────────────
 
 interface PropsSectionProps {
@@ -722,12 +882,18 @@ function ReadonlyPropRow({ prop }: { prop: ComponentProp }): React.ReactElement 
 
 // ── EditPanel ────────────────────────────────────────────────────────────────
 
+interface AiSuggestion {
+  property: string;
+  value: string;
+}
+
 interface EditPanelProps {
   selected: SelectedElement;
-  send: (message: unknown) => Promise<{ success: boolean; error?: string }>;
+  send: (message: unknown) => Promise<{ success: boolean; error?: string; data?: { aiSuggestions?: AiSuggestion[] } }>;
   onClose: () => void;
   onToast: (message: string, type: 'success' | 'error') => void;
   twTokens?: Record<string, string>;
+  aiAvailable?: boolean;
 }
 
 type Breakpoint = 'all' | 'mobile' | 'desktop';
@@ -738,7 +904,7 @@ const BREAKPOINTS: { key: Breakpoint; label: string; icon: string }[] = [
   { key: 'desktop', label: 'Desktop', icon: '🖥' },
 ];
 
-export function EditPanel({ selected, send, onClose, onToast, twTokens = {} }: EditPanelProps): React.ReactElement {
+export function EditPanel({ selected, send, onClose, onToast, twTokens = {}, aiAvailable = false }: EditPanelProps): React.ReactElement {
   const [localStyles, setLocalStyles] = useState<Record<string, string>>(selected.styles);
   const [originalStyles] = useState<Record<string, string>>(selected.styles);
   const [savingCss, setSavingCss] = useState<string | null>(null);
@@ -1096,6 +1262,17 @@ export function EditPanel({ selected, send, onClose, onToast, twTokens = {} }: E
 
       {/* Scrollable content */}
       <div style={{ overflowY: 'auto', flex: 1 }}>
+
+        {/* AI assistant */}
+        <AiBar
+          available={aiAvailable}
+          styles={localStyles}
+          elementTag={selected.element.tagName.toLowerCase()}
+          componentName={selected.componentName}
+          send={send}
+          onApplySuggestion={handleCssChange}
+          onToast={onToast}
+        />
 
         {/* Text content editor — shown when element has direct text */}
         {elementText && (

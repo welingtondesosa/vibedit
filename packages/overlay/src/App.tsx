@@ -35,10 +35,14 @@ export function App(): React.ReactElement {
   const [selected, setSelected] = useState<SelectedElement | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [twTokens, setTwTokens] = useState<Record<string, string>>({});
+  const [aiAvailable, setAiAvailable] = useState(false);
 
   const handlePush = useCallback((data: Record<string, unknown>) => {
     if (data.type === 'config' && data.twTokens) {
       setTwTokens(data.twTokens as Record<string, string>);
+    }
+    if (data.type === 'ai-config') {
+      setAiAvailable(data.available as boolean);
     }
   }, []);
 
@@ -167,6 +171,7 @@ export function App(): React.ReactElement {
           onClose={() => setSelected(null)}
           onToast={addToast}
           twTokens={twTokens}
+          aiAvailable={aiAvailable}
         />
       )}
       <Toast toasts={toasts} />

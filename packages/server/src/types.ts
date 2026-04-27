@@ -6,7 +6,7 @@ export interface VibeditConfig {
   projectRoot: string;
 }
 
-export type ChangeType = 'css' | 'text' | 'prop' | 'reorder' | 'global-text';
+export type ChangeType = 'css' | 'text' | 'prop' | 'reorder' | 'global-text' | 'ai';
 
 export type Breakpoint = 'all' | 'mobile' | 'desktop';
 
@@ -55,11 +55,19 @@ export interface GlobalTextChange {
   newText: string;
 }
 
+export interface AiChange {
+  type: 'ai';
+  prompt: string;
+  currentStyles: Record<string, string>;
+  elementTag: string;
+  componentName?: string;
+}
+
 export interface UndoChange {
   type: 'undo';
 }
 
-export type Change = CssChange | TextChange | PropChange | ReorderChange | GlobalTextChange | UndoChange;
+export type Change = CssChange | TextChange | PropChange | ReorderChange | GlobalTextChange | AiChange | UndoChange;
 
 export interface ServerMessage {
   id: string;
@@ -71,9 +79,12 @@ export interface ServerResponse {
   success: boolean;
   error?: string;
   data?: {
-    vid?: string;        // stable class name hash for breakpoint CSS preview
-    cssFile?: string;    // path to vibedit-responsive.css
-    firstImport?: boolean; // true if CSS file was just created (needs manual import)
+    vid?: string;
+    cssFile?: string;
+    firstImport?: boolean;
+    aiSuggestions?: Array<{ property: string; value: string }>;
+    aiAvailable?: boolean;
+    aiModels?: string[];
   };
 }
 

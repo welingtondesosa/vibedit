@@ -42,6 +42,10 @@ export class FileWriter {
       return;
     }
 
+    if (change.type === 'ai') {
+      return;
+    }
+
     const filePath = this.resolveFilePath(change.file);
     this.validateFilePath(filePath);
 

@@ -24,7 +24,7 @@ export function useWebSocket(onPush?: (data: Record<string, unknown>) => void): 
 
     ws.onmessage = (event: MessageEvent<string>) => {
       try {
-        const data = JSON.parse(event.data) as { id?: string; success?: boolean; error?: string; type?: string };
+        const data = JSON.parse(event.data) as { id?: string; success?: boolean; error?: string; type?: string; data?: Record<string, unknown> };
 
         // Server push (no id) — dispatch to callback
         if (!data.id) {
@@ -35,7 +35,7 @@ export function useWebSocket(onPush?: (data: Record<string, unknown>) => void): 
         if (pendingRef.current.has(data.id)) {
           const resolve = pendingRef.current.get(data.id)!;
           pendingRef.current.delete(data.id);
-          resolve({ success: data.success ?? false, error: data.error });
+          resolve({ success: data.success ?? false, error: data.error, ...(data.data ? { data: data.data } : {}) });
         }
       } catch {
         // ignore parse errors
@@ -47,12 +47,15 @@ export function useWebSocket(onPush?: (data: Record<string, unknown>) => void): 
     };
   }, []);
 
-  const send = useCallback((message: unknown): Promise<{ success: boolean; error?: string }> => {
+  const send = useCallback((message: unknown): Promise<{ success: boolean; error?: string; data?: Record<string, unknown> }> => {
     return new Promise((resolve) => {
       const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const payload = { id, ...(message as object) };
 
-      pendingRef.current.set(id, resolve);
+      const isAi = (message as { change?: { type?: string } })?.change?.type === 'ai';
+      const timeoutMs = isAi ? 60_000 : 5_000;
+
+      pendingRef.current.set(id, resolve as (r: { success: boolean; error?: string }) => void);
 
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify(payload));
@@ -61,13 +64,12 @@ export function useWebSocket(onPush?: (data: Record<string, unknown>) => void): 
         resolve({ success: false, error: 'WebSocket not connected' });
       }
 
-      // Timeout after 5 seconds
       setTimeout(() => {
         if (pendingRef.current.has(id)) {
           pendingRef.current.delete(id);
-          resolve({ success: false, error: 'Timeout' });
+          resolve({ success: false, error: isAi ? 'AI request timed out (60s)' : 'Timeout' });
         }
-      }, 5000);
+      }, timeoutMs);
     });
   }, []);
 
