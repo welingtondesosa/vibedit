@@ -652,14 +652,21 @@ function AiBar({ available, styles, elementTag, componentName, send, onApplySugg
     return (
       <div style={{
         borderBottom: `1px solid ${T.border}`, padding: '8px 14px',
-        display: 'flex', alignItems: 'center', gap: '6px',
       }}>
-        <span style={{ fontSize: '13px' }}>✨</span>
-        <span style={{ fontSize: '10px', color: T.textSecondary }}>
-          AI: Install <a href="https://ollama.com" target="_blank" rel="noopener noreferrer"
-            style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Ollama</a> then run{' '}
-          <code style={{ color: '#a5b4fc', fontFamily: 'ui-monospace, monospace', fontSize: '10px' }}>ollama pull llama3</code>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '13px' }}>✨</span>
+          <span style={{ fontSize: '10px', color: T.textSecondary }}>
+            AI: Install <a href="https://ollama.com" target="_blank" rel="noopener noreferrer"
+              style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Ollama</a> then run{' '}
+            <code style={{ color: '#a5b4fc', fontFamily: 'ui-monospace, monospace', fontSize: '10px' }}>ollama pull llama3</code>
+          </span>
+        </div>
+        <div style={{ fontSize: '9px', color: '#64748b', paddingLeft: '21px', lineHeight: 1.5 }}>
+          Not working? Restart VS Code after installing. On Windows try the full path:{' '}
+          <code style={{ color: '#fbbf24', fontFamily: 'ui-monospace, monospace', fontSize: '9px' }}>
+            C:\Users\...\AppData\Local\Programs\Ollama\ollama.exe pull llama3
+          </code>
+        </div>
       </div>
     );
   }

@@ -5,6 +5,7 @@ interface AiSectionProps {
     sub: string;
     steps: string[];
     note: string;
+    tip: string;
     cta: string;
   };
 }
@@ -284,11 +285,46 @@ export function AiSection({ t }: AiSectionProps) {
           ))}
         </div>
 
-        {/* Note + CTA */}
+        {/* Note + Tip + CTA */}
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px' }}>
+          <p style={{ fontSize: '13px', color: '#475569', marginBottom: '12px' }}>
             {t.note}
           </p>
+          <details
+            style={{
+              maxWidth: '520px',
+              margin: '0 auto 20px',
+              textAlign: 'left',
+            }}
+          >
+            <summary
+              style={{
+                fontSize: '12px',
+                color: '#fbbf24',
+                cursor: 'pointer',
+                padding: '6px 0',
+                listStyle: 'none',
+              }}
+            >
+              <span style={{ marginRight: '6px' }}>&#9888;&#65039;</span>
+              Command not recognized after installing?
+            </summary>
+            <p
+              style={{
+                fontSize: '12px',
+                color: '#64748b',
+                lineHeight: 1.6,
+                marginTop: '8px',
+                padding: '10px 14px',
+                background: 'rgba(251,191,36,0.05)',
+                border: '1px solid rgba(251,191,36,0.15)',
+                borderRadius: '8px',
+                wordBreak: 'break-word',
+              }}
+            >
+              {t.tip}
+            </p>
+          </details>
           <a
             href="https://ollama.com"
             target="_blank"

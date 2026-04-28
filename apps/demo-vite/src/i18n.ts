@@ -49,6 +49,7 @@ export interface Translations {
     sub: string;
     steps: string[];
     note: string;
+    tip: string;
     cta: string;
   };
   install: {
@@ -178,6 +179,7 @@ export const T: Record<Lang, Translations> = {
         'Changes are written to your source files instantly',
       ],
       note: 'Works with any Ollama model: LLaMA 3, Mistral, Gemma, and more.',
+      tip: 'If "ollama" is not recognized after installing, restart VS Code or your terminal. On Windows you can also use the full path: C:\\Users\\YourUser\\AppData\\Local\\Programs\\Ollama\\ollama.exe pull llama3',
       cta: 'ollama.com — free download',
     },
     install: {
@@ -324,6 +326,7 @@ export const T: Record<Lang, Translations> = {
         'Los cambios se escriben en tus archivos fuente al instante',
       ],
       note: 'Funciona con cualquier modelo de Ollama: LLaMA 3, Mistral, Gemma, y más.',
+      tip: 'Si "ollama" no se reconoce después de instalar, reiniciá VS Code o tu terminal. En Windows también podés usar la ruta completa: C:\\Users\\TuUsuario\\AppData\\Local\\Programs\\Ollama\\ollama.exe pull llama3',
       cta: 'ollama.com — descarga gratuita',
     },
     install: {
@@ -472,6 +475,7 @@ export const T: Record<Lang, Translations> = {
         'As mudanças são escritas nos seus arquivos fonte instantaneamente',
       ],
       note: 'Funciona com qualquer modelo do Ollama: LLaMA 3, Mistral, Gemma, e mais.',
+      tip: 'Se "ollama" não for reconhecido após instalar, reinicie o VS Code ou seu terminal. No Windows você também pode usar o caminho completo: C:\\Users\\SeuUsuario\\AppData\\Local\\Programs\\Ollama\\ollama.exe pull llama3',
       cta: 'ollama.com — download gratuito',
     },
     install: {
