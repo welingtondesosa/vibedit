@@ -604,12 +604,15 @@ interface AiBarProps {
   styles: Record<string, string>;
   elementTag: string;
   componentName?: string;
+  sourceFile?: string;
+  line?: number;
+  column?: number;
   send: (message: unknown) => Promise<{ success: boolean; error?: string; data?: { aiSuggestions?: AiSuggestion[] } }>;
   onApplySuggestion: (property: string, value: string) => void;
   onToast: (message: string, type: 'success' | 'error') => void;
 }
 
-function AiBar({ available, styles, elementTag, componentName, send, onApplySuggestion, onToast }: AiBarProps): React.ReactElement {
+function AiBar({ available, styles, elementTag, componentName, sourceFile, line, column, send, onApplySuggestion, onToast }: AiBarProps): React.ReactElement {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
@@ -639,13 +642,42 @@ function AiBar({ available, styles, elementTag, componentName, send, onApplySugg
     }
   };
 
-  const handleApplyAll = (): void => {
-    for (const s of suggestions) {
-      onApplySuggestion(s.property, s.value);
+  const handleApplyAll = async (): Promise<void> => {
+    if (!sourceFile || !line) {
+      for (const s of suggestions) {
+        onApplySuggestion(s.property, s.value);
+      }
+      onToast(`Applied ${suggestions.length} changes`, 'success');
+      setSuggestions([]);
+      setPrompt('');
+      return;
     }
-    onToast(`Applied ${suggestions.length} changes`, 'success');
-    setSuggestions([]);
-    setPrompt('');
+
+    const result = await send({
+      change: {
+        type: 'css-batch',
+        file: sourceFile,
+        line,
+        column: column ?? 0,
+        componentName: componentName ?? elementTag,
+        changes: suggestions.map((s) => ({ property: s.property, value: s.value })),
+      },
+    });
+
+    if (result.success) {
+      const el = document.querySelector('[data-vibedit-selected]') as HTMLElement | null;
+      if (el) {
+        for (const s of suggestions) {
+          const camelProp = s.property.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+          (el.style as unknown as Record<string, string>)[camelProp] = s.value;
+        }
+      }
+      onToast(`Applied ${suggestions.length} changes`, 'success');
+      setSuggestions([]);
+      setPrompt('');
+    } else {
+      onToast(result.error ?? 'Error applying batch', 'error');
+    }
   };
 
   if (!available) {
@@ -736,7 +768,7 @@ function AiBar({ available, styles, elementTag, componentName, send, onApplySugg
             ))}
             <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
               <button
-                onClick={handleApplyAll}
+                onClick={() => void handleApplyAll()}
                 style={{
                   flex: 1, padding: '5px 0', borderRadius: '6px',
                   background: T.accent, border: `1px solid ${T.accent}`,
@@ -1242,6 +1274,14 @@ export function EditPanel({ selected, send, onClose, onToast, twTokens = {}, aiA
           <button
             onClick={async () => {
               const result = await send({ change: { type: 'undo' } });
+              if (result.success) {
+                const el = selected.element as HTMLElement;
+                for (const prop of Object.keys(localStyles)) {
+                  const camelProp = prop.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+                  (el.style as unknown as Record<string, string>)[camelProp] = '';
+                }
+                setLocalStyles(originalStyles);
+              }
               onToast(result.success ? 'Cambio revertido' : (result.error ?? 'Nada que revertir'), result.success ? 'success' : 'error');
             }}
             style={{
@@ -1276,6 +1316,9 @@ export function EditPanel({ selected, send, onClose, onToast, twTokens = {}, aiA
           styles={localStyles}
           elementTag={selected.element.tagName.toLowerCase()}
           componentName={selected.componentName}
+          sourceFile={selected.sourceFile}
+          line={selected.line}
+          column={selected.column}
           send={send}
           onApplySuggestion={handleCssChange}
           onToast={onToast}

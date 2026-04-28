@@ -50,7 +50,11 @@ export class VibeditServer {
       const response: ServerResponse = { id: msg.id, success: false };
 
       try {
-        if (msg.change.type === 'ai') {
+        if (msg.change.type === 'css-batch') {
+          await this.fileWriter.applyChange(msg.change);
+          response.success = true;
+          console.log(`[Vibedit] css-batch (${(msg.change as any).changes?.length ?? 0} changes) applied to ${(msg.change as any).file}`);
+        } else if (msg.change.type === 'ai') {
           const aiChange = msg.change as AiChange;
           const suggestions = await getAiSuggestions({
             prompt: aiChange.prompt,

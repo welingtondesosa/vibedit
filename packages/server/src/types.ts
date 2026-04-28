@@ -6,7 +6,7 @@ export interface VibeditConfig {
   projectRoot: string;
 }
 
-export type ChangeType = 'css' | 'text' | 'prop' | 'reorder' | 'global-text' | 'ai';
+export type ChangeType = 'css' | 'css-batch' | 'text' | 'prop' | 'reorder' | 'global-text' | 'ai';
 
 export type Breakpoint = 'all' | 'mobile' | 'desktop';
 
@@ -63,11 +63,21 @@ export interface AiChange {
   componentName?: string;
 }
 
+export interface CssBatchChange {
+  type: 'css-batch';
+  file: string;
+  line: number;
+  column: number;
+  componentName: string;
+  changes: Array<{ property: string; value: string }>;
+  breakpoint?: Breakpoint;
+}
+
 export interface UndoChange {
   type: 'undo';
 }
 
-export type Change = CssChange | TextChange | PropChange | ReorderChange | GlobalTextChange | AiChange | UndoChange;
+export type Change = CssChange | CssBatchChange | TextChange | PropChange | ReorderChange | GlobalTextChange | AiChange | UndoChange;
 
 export interface ServerMessage {
   id: string;

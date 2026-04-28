@@ -13,6 +13,7 @@ import * as crypto from 'crypto';
 import type {
   Change,
   CssChange,
+  CssBatchChange,
   TextChange,
   PropChange,
   ReorderChange,
@@ -43,6 +44,11 @@ export class FileWriter {
     }
 
     if (change.type === 'ai') {
+      return;
+    }
+
+    if (change.type === 'css-batch') {
+      await this.applyCssBatch(change);
       return;
     }
 
@@ -312,6 +318,33 @@ export class FileWriter {
     }
 
     fs.writeFileSync(filePath, lines.join('\n'), 'utf-8');
+  }
+
+  private async applyCssBatch(change: CssBatchChange): Promise<void> {
+    const filePath = this.resolveFilePath(change.file);
+    this.validateFilePath(filePath);
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
+    }
+
+    const originalContent = fs.readFileSync(filePath, 'utf-8');
+    this.backup.backup(filePath);
+    this.pushUndo([{ file: filePath, originalContent }]);
+
+    const { project, sourceFile } = getOrCreateProject(filePath);
+    const element = findJsxElementAtPosition(sourceFile, change.line, change.column);
+
+    if (!element) {
+      throw new Error(`No JSX element found at ${change.file}:${change.line}:${change.column}`);
+    }
+
+    for (const { property, value } of change.changes) {
+      setStyleOnElement(sourceFile, element, property, value);
+    }
+
+    await this.saveFile(filePath, sourceFile.getFullText());
+    project.removeSourceFile(sourceFile);
   }
 
   private async applyTextChange(filePath: string, change: TextChange): Promise<void> {
