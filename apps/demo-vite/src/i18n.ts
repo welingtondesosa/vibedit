@@ -43,6 +43,14 @@ export interface Translations {
     subtitle: string;
     items: FeatureItem[];
   };
+  ai: {
+    badge: string;
+    headline: string;
+    sub: string;
+    steps: string[];
+    note: string;
+    cta: string;
+  };
   install: {
     title: string;
     subtitle: string;
@@ -158,6 +166,19 @@ export const T: Record<Lang, Translations> = {
             'Rearrange sibling elements by dragging them in the browser. The new order is written directly to your source file — no manual copy-paste needed.',
         },
       ],
+    },
+    ai: {
+      badge: 'NEW — LOCAL AI',
+      headline: 'Describe what you want. The AI writes the CSS.',
+      sub: 'Vibedit connects to Ollama — a free, open-source AI that runs entirely on your machine. No cloud, no API keys, no cost per request. Your code never leaves your computer.',
+      steps: [
+        'Select any element in your app',
+        'Type what you want: "add shadow and round corners"',
+        'Review the AI suggestions — apply one by one or all at once',
+        'Changes are written to your source files instantly',
+      ],
+      note: 'Works with any Ollama model: LLaMA 3, Mistral, Gemma, and more.',
+      cta: 'ollama.com — free download',
     },
     install: {
       title: 'Get started in under 2 minutes',
@@ -291,6 +312,19 @@ export const T: Record<Lang, Translations> = {
             'Reorganizá elementos hermanos arrastrándolos en el navegador. El nuevo orden se escribe directo en tu archivo fuente — sin copy-paste manual.',
         },
       ],
+    },
+    ai: {
+      badge: 'NUEVO — IA LOCAL',
+      headline: 'Describí lo que querés. La IA escribe el CSS.',
+      sub: 'Vibedit se conecta a Ollama — una IA gratuita y open source que corre completamente en tu máquina. Sin cloud, sin API keys, sin costo por request. Tu código nunca sale de tu computadora.',
+      steps: [
+        'Seleccioná cualquier elemento de tu app',
+        'Escribí lo que querés: "agregá sombra y bordes redondeados"',
+        'Revisá las sugerencias de la IA — aplicá una por una o todas juntas',
+        'Los cambios se escriben en tus archivos fuente al instante',
+      ],
+      note: 'Funciona con cualquier modelo de Ollama: LLaMA 3, Mistral, Gemma, y más.',
+      cta: 'ollama.com — descarga gratuita',
     },
     install: {
       title: 'Empezá en menos de 2 minutos',
@@ -426,6 +460,19 @@ export const T: Record<Lang, Translations> = {
             'Reorganize elementos irmãos arrastando-os no navegador. A nova ordem é escrita diretamente no arquivo fonte — sem copiar e colar manualmente.',
         },
       ],
+    },
+    ai: {
+      badge: 'NOVO — IA LOCAL',
+      headline: 'Descreva o que você quer. A IA escreve o CSS.',
+      sub: 'Vibedit se conecta ao Ollama — uma IA gratuita e open source que roda inteiramente na sua máquina. Sem cloud, sem API keys, sem custo por request. Seu código nunca sai do seu computador.',
+      steps: [
+        'Selecione qualquer elemento do seu app',
+        'Digite o que quer: "adicione sombra e arredonde os cantos"',
+        'Revise as sugestões da IA — aplique uma por uma ou todas de uma vez',
+        'As mudanças são escritas nos seus arquivos fonte instantaneamente',
+      ],
+      note: 'Funciona com qualquer modelo do Ollama: LLaMA 3, Mistral, Gemma, e mais.',
+      cta: 'ollama.com — download gratuito',
     },
     install: {
       title: 'Comece em menos de 2 minutos',

@@ -5,6 +5,7 @@ import { HeroSection } from './components/HeroSection';
 import { DemoPreview } from './components/DemoPreview';
 import { HowItWorks } from './components/HowItWorks';
 import { Features } from './components/Features';
+import { AiSection } from './components/AiSection';
 import { InstallSection } from './components/InstallSection';
 import { OpenSourceSection } from './components/OpenSourceSection';
 import { Footer } from './components/Footer';
@@ -21,6 +22,7 @@ function App() {
         <DemoPreview />
         <HowItWorks t={t.howItWorks} />
         <Features t={t.features} />
+        <AiSection t={t.ai} />
         <InstallSection t={t.install} />
         <OpenSourceSection t={t.openSource} />
       </main>
